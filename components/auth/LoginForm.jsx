@@ -1,0 +1,211 @@
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Phone, Eye, EyeOff, Mail, LogIn } from "lucide-react";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { useAppContext } from "@/context/context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+export default function LoginForm() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [view, setView] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { setUserInfo, setAccessToken } = useAppContext();
+  const router = useRouter();
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+
+    try {
+      setIsLoading(true);
+      const url = `${process.env.NEXT_PUBLIC_API_DEV_URL}/login`;
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.status === false) {
+        toast.error(data.errors);
+      } else if (data.data.two_fa_status === 1) {
+        router.push("/2fa_verification");
+        localStorage.setItem("email", email);
+        localStorage.setItem("two_fa_type", data.data.two_fa_type);
+      } else if (data.status === true) {
+        router.push("/app");
+        toast.success(data.message);
+        setAccessToken(data.data.access_token);
+        setUserInfo(data.data);
+      } else {
+        toast.error(data.errors);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex-1 flex items-center justify-center p-8 relative">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-destructive"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-indigo-600"></div>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="w-full max-w-lg relative z-10"
+      >
+        <form
+          onSubmit={handleLogin}
+          className="bg-white p-10 rounded-lg shadow border border-gray-100 backdrop-blur-sm"
+        >
+          <motion.h2
+            className="text-3xl font-bold text-center mb-4 text-gray-800"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            Welcome Back
+          </motion.h2>
+          <p className="text-center text-gray-500 mb-8">
+            Sign in to your Sosay account
+          </p>
+
+          <div className="space-y-6">
+            {view ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="overflow-hidden space-y-2"
+              >
+                <Label htmlFor="phone_number">Phone Number</Label>
+                <div className="relative">
+                  <Input
+                    id="phone_number"
+                    name="phone_number"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    className="pr-10"
+                  />
+                  <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="overflow-hidden space-y-2"
+              >
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                    className="pr-10"
+                  />
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                </div>
+              </motion.div>
+            )}
+
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => setView(!view)}
+              className="text-sm text-destructive hover:text-indigo-700 p-0 h-auto font-medium w-full text-right"
+            >
+              {view ? "Use email instead" : "Use phone instead"}
+            </Button>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={handleTogglePasswordVisibility}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end items-center text-sm">
+              <Link
+                href="/forget-password"
+                className="text-destructive hover:text-indigo-700 transition-colors font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            <motion.div whileTap={{ scale: 0.98 }}>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-br from-destructive to-indigo-600 text-white font-semibold py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-5 h-5 mr-2" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+            </motion.div>
+
+            <p className="text-sm text-center text-gray-500 mt-8">
+              Don't have an account?{" "}
+              <Link
+                href="/register"
+                className="text-destructive font-semibold hover:text-indigo-700 transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}

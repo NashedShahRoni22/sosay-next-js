@@ -1,0 +1,117 @@
+import {
+  Home,
+  Users,
+  Store,
+  Video,
+  Settings,
+  Layers,
+  MessageCircle,
+  Bell,
+  Bookmark,
+  UserCircle2,
+  PlusCircle,
+  LogOut,
+} from "lucide-react";
+import clsx from "clsx";
+import Link from "next/link";
+import { useAppContext } from "@/context/context";
+
+const menuItems = [
+  { name: "Home", icon: Home, href: "/app" },
+  { name: "Create", icon: PlusCircle, href: "/app/create" },
+  { name: "Message", icon: MessageCircle, href: "/app/message" },
+  { name: "Reels", icon: Video, href: "/app/reels" },
+  { name: "Shop", icon: Store, href: "/app/app/shop" },
+  { name: "Friends", icon: Users, href: "/app/friends" },
+  { name: "Pages", icon: Layers, href: "/app/pages" },
+  { name: "Bookmark", icon: Bookmark, href: "/app/bookmark" },
+  { name: "Notifications", icon: Bell, href: "/app/notifications" },
+  { name: "Settings", icon: Settings, href: "/app/settings" },
+  // { name: "Log Out", icon: LogOut, href: "/login" },
+];
+
+export default function AppSidebar({ isOpen, onClose }) {
+  const { userInfo, logout, pathname } = useAppContext();
+  return (
+    <>
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={clsx(
+          "fixed h-screen overflow-y-auto w-64 bg-white border-r border-gray-200 text-gray-800 z-50 flex flex-col transition-transform duration-300 shadow-lg",
+          isOpen ? "translate-x-0 top-0" : "-translate-x-full top-14",
+          "md:translate-x-0"
+        )}
+      >
+        {/* User Profile Section */}
+        {userInfo && (
+          <Link
+            href="/app/profile"
+            className="flex items-center gap-3 px-5 py-4 border-y border-gray-200 hover:bg-gray-50 transition-colors"
+          >
+            {/* <img
+              src={userInfo.user_image}
+              alt={userInfo.name}
+              className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
+            /> */}
+            {/* <UserCircle2 size={48} /> */}
+            <img
+              src={userInfo?.user_image || "/default-avatar.png"}
+              alt="Profile"
+              className="size-16 md:size-20 rounded-full object-cover border-4"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 truncate">
+                {userInfo.name}
+              </p>
+              <p className="text-sm text-gray-500 truncate">{userInfo.email}</p>
+            </div>
+          </Link>
+        )}
+
+        {/* Navigation Menu */}
+        <nav className="flex-1 flex flex-col mt-3 overflow-y-auto">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => {
+                  // setActive(item.name);
+                  onClose();
+                }}
+                className={clsx(
+                  "flex items-center gap-4 px-5 py-3 rounded-xl mx-2 my-1 transition-all hover:bg-gray-100",
+                  pathname === item.href &&
+                    "text-secondary font-medium bg-gray-100"
+                )}
+              >
+                <Icon size={22} />
+                <span className="font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+
+          <button      
+            onClick={() => {
+              logout();
+            }}
+            className={clsx(
+              "cursor-pointer flex items-center gap-4 px-5 py-3 rounded-xl mx-2 my-1 transition-all hover:bg-red-100 bg-red-50 text-primary border border-red-200 font-medium"
+            )}
+          >
+            <LogOut size={22} />
+            <span className="font-medium">Log Out</span>
+          </button>
+        </nav>
+      </aside>
+    </>
+  );
+}

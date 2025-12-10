@@ -1,0 +1,62 @@
+"use client";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
+
+// Create Context
+const AppContext = createContext();
+
+// Provider Component
+export const AppProvider = ({ children }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [userInfo, setUserInfo] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  
+  // Load user info & token from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user_info");
+    const storedToken = localStorage.getItem("access_token");
+
+    if (storedUser) setUserInfo(JSON.parse(storedUser));
+    if (storedToken) setAccessToken(storedToken);
+  }, []);
+
+  // Update user and save in localStorage
+  const updateUserInfo = (user) => {
+    setUserInfo(user);
+    localStorage.setItem("user_info", JSON.stringify(user));
+  };
+  // Update access token and sync to localStorage
+  const updateAccessToken = (token) => {
+    setAccessToken(token);
+    if (token) localStorage.setItem("access_token", token);
+    else localStorage.removeItem("access_token");
+  };
+
+  // Logout and clear storage
+  const logout = () => {
+    setUserInfo(null);
+    setAccessToken(null);
+    localStorage.removeItem("user_info");
+    localStorage.removeItem("access_token");
+    router.push("/");
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        pathname,
+        userInfo,
+        accessToken,
+        setUserInfo: updateUserInfo,
+        setAccessToken: updateAccessToken,
+        logout,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+// Custom hook for easy access
+export const useAppContext = () => useContext(AppContext);
