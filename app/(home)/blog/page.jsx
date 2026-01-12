@@ -16,6 +16,7 @@ import {
   Tag,
   ChevronRight
 } from "lucide-react";
+import Image from "next/image";
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -221,10 +222,12 @@ export default function Blog() {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-gray-100 overflow-hidden hover:bg-white hover:border-pink-200 hover:shadow-xl transition-all duration-500 group">
           <div className="grid lg:grid-cols-2 gap-0">
             <div className="relative overflow-hidden">
-              <img 
+              <Image 
                 src={featuredPost.image} 
                 alt={featuredPost.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                width={500}
+                height={500}  
               />
               <div className="absolute top-4 left-4">
                 <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-medium rounded-full">
@@ -285,10 +288,12 @@ export default function Blog() {
             <article key={post.id} className="group cursor-pointer">
               <div className="bg-white/80 backdrop-blur-sm rounded-xl border-2 border-gray-100 overflow-hidden hover:bg-white hover:border-pink-200 hover:scale-105 hover:shadow-xl transition-all duration-500">
                 <div className="relative overflow-hidden">
-                  <img 
+                  <Image 
                     src={post.image} 
                     alt={post.title}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    height={500}
+                    width={500}
                   />
                   <div className="absolute top-3 left-3">
                     <span className="px-2 py-1 bg-white/90 backdrop-blur-sm text-pink-600 text-xs font-medium rounded-full border border-pink-200">

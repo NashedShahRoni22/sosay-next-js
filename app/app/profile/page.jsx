@@ -13,6 +13,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import ProfilePost from "@/components/profile/ProfilePost";
+import Image from "next/image";
 
 // Default cover image - replace with your actual path
 const defaultCover = "/assets/designs/welcome.png";
@@ -242,13 +244,15 @@ export default function ProfilePage() {
     updateCoverPictureMutation.isPending;
 
   return (
-    <section className="max-w-2xl mx-auto p-6 space-y-6">
+    <section className="max-w-2xl mx-auto space-y-6 mt-8">
       {/* Cover Picture */}
       <div className="relative">
-        <img
+        <Image
           src={userInfo?.user_cover_image || defaultCover}
           className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover"
-          alt="Cover"
+          alt="Cover Image"
+          height={1000}
+          width={1000}
         />
         <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
           <button
@@ -265,10 +269,12 @@ export default function ProfilePage() {
       <div className="max-w-5xl mx-auto px-5">
         <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16 md:-mt-20">
           <div className="relative">
-            <img
-              src={userInfo?.user_image || "/default-avatar.png"}
-              alt="Profile"
+            <Image
+              src={userInfo?.user_image}
+              alt="Profile Image"
               className="size-32 md:size-40 rounded-full object-cover border-4 border-white"
+              height={1000}
+              width={1000}
             />
             <button
               onClick={handleOpenProfileDialog}
@@ -281,10 +287,12 @@ export default function ProfilePage() {
             <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
               {userInfo?.name}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">00 friends</p>
           </div>
         </div>
       </div>
+
+      {/* Profile created posts */}
+      <ProfilePost />
 
       {/* Profile Picture Dialog */}
       <Dialog open={openProfileDialog} onOpenChange={setOpenProfileDialog}>
@@ -296,10 +304,12 @@ export default function ProfilePage() {
           <div className="space-y-6">
             {/* Upload Section */}
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <img
+              <Image
                 src={profilePreview || "/default-avatar.png"}
                 alt="Profile Preview"
                 className="size-36 rounded-full object-cover"
+                height={500}
+                width={500}
               />
               <input
                 id="profile-image"
@@ -340,14 +350,16 @@ export default function ProfilePage() {
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   {profilePictures?.data?.map((pp, i) => (
                     <div key={i} className="relative group">
-                      <img
+                      <Image
                         src={pp?.picture_name}
                         alt="profile_picture"
                         loading="lazy"
                         className="object-cover rounded-lg h-[200px] w-full"
+                        width={500}
+                        height={500}
                       />
                       <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Button
@@ -389,10 +401,12 @@ export default function ProfilePage() {
             {/* Upload Section */}
             <div>
               <div className="relative">
-                <img
+                <Image
                   src={coverPreview}
                   className="w-full h-[200px] md:h-[250px] rounded-lg object-cover"
                   alt="Cover Preview"
+                  width={500}
+                  height={500}
                 />
                 <input
                   id="cover-image"
@@ -439,11 +453,13 @@ export default function ProfilePage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   {coverPictures?.data?.map((cp, i) => (
                     <div key={i} className="relative group">
-                      <img
+                      <Image
                         src={cp?.cover_picture_name}
                         alt="cover_picture"
                         loading="lazy"
                         className="w-full h-[200px] rounded-lg object-cover"
+                        width={500}
+                        height={500}
                       />
                       <div className="absolute inset-0 bg-black/60 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Button

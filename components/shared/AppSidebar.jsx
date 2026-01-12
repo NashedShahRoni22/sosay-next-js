@@ -15,6 +15,7 @@ import {
 import clsx from "clsx";
 import Link from "next/link";
 import { useAppContext } from "@/context/context";
+import Image from "next/image";
 
 const menuItems = [
   { name: "Home", icon: Home, href: "/app" },
@@ -55,16 +56,12 @@ export default function AppSidebar({ isOpen, onClose }) {
             href="/app/profile"
             className="flex items-center gap-3 px-5 py-4 border-y border-gray-200 hover:bg-gray-50 transition-colors"
           >
-            {/* <img
-              src={userInfo.user_image}
-              alt={userInfo.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-blue-200"
-            /> */}
-            {/* <UserCircle2 size={48} /> */}
-            <img
+            <Image
               src={userInfo?.user_image || "/default-avatar.png"}
               alt="Profile"
               className="size-16 md:size-20 rounded-full object-cover border-4"
+              height={500}
+              width={500}
             />
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-900 truncate">
@@ -76,7 +73,7 @@ export default function AppSidebar({ isOpen, onClose }) {
         )}
 
         {/* Navigation Menu */}
-        <nav className="flex-1 flex flex-col mt-3 overflow-y-auto">
+        <nav className="flex-1 flex flex-col overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -98,8 +95,9 @@ export default function AppSidebar({ isOpen, onClose }) {
               </Link>
             );
           })}
-
-          <button      
+          
+          {/* Log Out button here  */}
+          <button
             onClick={() => {
               logout();
             }}

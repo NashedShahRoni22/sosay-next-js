@@ -1,26 +1,23 @@
 "use client";
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus, UserCheck, X, Eye, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { useAppContext } from "@/context/context";
 import { fetchWithToken } from "@/helpers/api";
+import toast from "react-hot-toast";
+import UserCard from "@/components/friends/UserCard";
 
 // Skeleton Loader Component
 const UserCardSkeleton = () => (
-  <div className="relative bg-white border rounded-lg p-6">
-    <div className="flex flex-col items-center space-y-4">
-      <Skeleton className="h-32 w-32 rounded-full" />
-      <div className="w-full space-y-2">
-        <Skeleton className="h-5 w-3/4 mx-auto" />
-        <Skeleton className="h-4 w-1/2 mx-auto" />
-      </div>
-      <div className="w-full space-y-2 pt-2">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
+  <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 border rounded-2xl overflow-hidden h-80">
+    <div className="absolute inset-0 animate-pulse">
+      <Skeleton className="h-full w-full" />
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <Skeleton className="h-6 w-3/4 mx-auto mb-2 rounded-full" />
+        <Skeleton className="h-4 w-1/2 mx-auto rounded-full" />
       </div>
     </div>
   </div>
@@ -34,106 +31,11 @@ const UserCardSkeletonList = () => (
   </div>
 );
 
-// User Card Component
-const UserCard = ({ user, type, onAction }) => {
-  const getActionButtons = () => {
-    switch (type) {
-      case "suggested":
-        return (
-          <Button
-            onClick={() => onAction(user.id, "send")}
-            className="w-full gap-2 bg-blue-500 hover:bg-blue-600"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add Friend
-          </Button>
-        );
-      case "requested":
-        return (
-          <>
-            <Button
-              onClick={() => onAction(user.id, "accept")}
-              className="w-full gap-2 bg-green-500 hover:bg-green-600"
-            >
-              <UserCheck className="h-4 w-4" />
-              Accept
-            </Button>
-            <Button
-              onClick={() => onAction(user.id, "reject")}
-              variant="outline"
-              className="w-full gap-2 border-red-300 text-red-600 hover:bg-red-50"
-            >
-              <X className="h-4 w-4" />
-              Reject
-            </Button>
-          </>
-        );
-      case "sent":
-        return (
-          <Button
-            onClick={() => onAction(user.id, "cancel")}
-            variant="outline"
-            className="w-full gap-2 border-gray-300 hover:bg-gray-50"
-          >
-            <X className="h-4 w-4" />
-            Cancel Request
-          </Button>
-        );
-      case "friends":
-        return (
-          <Button
-            onClick={() => onAction(user.id, "view")}
-            className="w-full gap-2 bg-purple-500 hover:bg-purple-600"
-          >
-            <Eye className="h-4 w-4" />
-            View Profile
-          </Button>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="relative z-10 flex flex-col items-center space-y-4 bg-white rounded-lg border p-6">
-      {/* User Image */}
-      <div className="relative">
-        <div className="h-32 w-32 rounded-full overflow-hidden ring-4 ring-white/50 shadow-lg">
-          {user.image ? (
-            <img
-              src={user.image}
-              alt={user.name}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user.name
-                )}&background=random&size=128`;
-              }}
-            />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 text-white text-4xl font-bold">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* User Name */}
-      <div className="text-center w-full">
-        <h3 className="font-bold text-lg truncate text-gray-800 dark:text-white">
-          {user.name}
-        </h3>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="w-full space-y-2 pt-2">{getActionButtons()}</div>
-    </div>
-  );
-};
-
 // Tab Content Component
 const FriendsTabContent = ({ endpoint, type, title }) => {
   const { accessToken } = useAppContext();
+  const queryClient = useQueryClient();
+  const [loadingState, setLoadingState] = useState({ userId: null, action: null });
 
   const { data, isLoading, error } = useQuery({
     queryKey: [endpoint, accessToken],
@@ -141,9 +43,149 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
     enabled: !!accessToken,
   });
 
-  const handleAction = (userId, action) => {
-    console.log(`Action: ${action} for user: ${userId}`);
-    // You'll add functionality here later
+  const handleAction = async (userId, action) => {
+    setLoadingState({ userId, action });
+    
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_DEV_URL;
+
+      switch (action) {
+        case "send": {
+          // Send friend request
+          const formData = new FormData();
+          formData.append("friend_id", userId);
+
+          const response = await fetch(`${baseUrl}/friendship/friends`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+          if (data.status === true) {
+            toast.success(data.message || "Friend request sent!");
+            // Refetch suggested and sent lists
+            queryClient.invalidateQueries(["/friendship/suggest-friends"]);
+            queryClient.invalidateQueries(["/friendship/sent-friends-request"]);
+          } else {
+            toast.error(data.message || "Failed to send friend request");
+          }
+          break;
+        }
+
+        case "accept": {
+          // Accept friend request - Changed to POST method
+          const response = await fetch(
+            `${baseUrl}/friendship/manage-requested-friends?friend_id=${userId}&status=2`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+          if (data.status === true) {
+            toast.success(data.message || "Friend request accepted!");
+            // Refetch requests and friends lists
+            queryClient.invalidateQueries(["/friendship/requested-friends"]);
+            queryClient.invalidateQueries(["/friendship/my-friends?status=2"]);
+          } else {
+            toast.error(data.message || "Failed to accept friend request");
+          }
+          break;
+        }
+
+        case "reject": {
+          // Reject friend request - Changed to POST method (status=3 for delete)
+          const response = await fetch(
+            `${baseUrl}/friendship/manage-requested-friends?friend_id=${userId}&status=3`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+          if (data.status === true) {
+            toast.success(data.message || "Friend request rejected");
+            // Refetch requests list
+            queryClient.invalidateQueries(["/friendship/requested-friends"]);
+          } else {
+            toast.error(data.message || "Failed to reject friend request");
+          }
+          break;
+        }
+
+        case "cancel": {
+          // Cancel sent friend request
+          const formData = new FormData();
+          formData.append("friend_id", userId);
+
+          const response = await fetch(`${baseUrl}/friendship/sent-friends-request/cancel`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+          if (data.status === true) {
+            toast.success(data.message || "Friend request cancelled");
+            // Refetch sent requests and suggested lists
+            queryClient.invalidateQueries(["/friendship/sent-friends-request"]);
+            queryClient.invalidateQueries(["/friendship/suggest-friends"]);
+          } else {
+            toast.error(data.message || "Failed to cancel friend request");
+          }
+          break;
+        }
+
+        case "unfriend": {
+          // Unfriend - New action
+          const formData = new FormData();
+          formData.append("friend_id", userId);
+
+          const response = await fetch(`${baseUrl}/friendship/friends/unfriend`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+          if (data.status === true) {
+            toast.success(data.message || "Friend removed successfully");
+            // Refetch friends and suggested lists
+            queryClient.invalidateQueries(["/friendship/my-friends?status=2"]);
+            queryClient.invalidateQueries(["/friendship/suggest-friends"]);
+          } else {
+            toast.error(data.message || "Failed to remove friend");
+          }
+          break;
+        }
+
+        case "view": {
+          toast.info("Profile view feature - implement navigation here");
+          break;
+        }
+
+        default:
+          console.log(`Unknown action: ${action}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoadingState({ userId: null, action: null });
+    }
   };
 
   if (isLoading) return <UserCardSkeletonList />;
@@ -181,6 +223,8 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
           user={user}
           type={type}
           onAction={handleAction}
+          isLoading={loadingState.userId === user.id}
+          currentAction={loadingState.action}
         />
       ))}
     </div>
@@ -190,7 +234,7 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
 // Main Friends Page Component
 export default function FriendsPage() {
   return (
-    <div className="container mx-auto max-w-2xl">
+    <div className="max-w-2xl mx-auto p-6 mt-14 ">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Friends</h1>
         <p className="text-gray-600">
@@ -200,10 +244,10 @@ export default function FriendsPage() {
 
       <Tabs defaultValue="suggested" className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="suggested">Suggested</TabsTrigger>
-          <TabsTrigger value="friends">My Friends</TabsTrigger>
-          <TabsTrigger value="requests">Requests</TabsTrigger>
-          <TabsTrigger value="sent">Sent</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="suggested">Suggested</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="friends">My Friends</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="requests">Requests</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="sent">Sent</TabsTrigger>
         </TabsList>
 
         <TabsContent value="suggested">

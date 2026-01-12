@@ -126,7 +126,7 @@ export default function AddPostPage() {
   const currentVisibility = visibilityOptions.find((v) => v.id === visibility);
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in">
+    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in mt-14">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">

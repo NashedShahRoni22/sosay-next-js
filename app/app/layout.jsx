@@ -17,7 +17,7 @@ export default function Layout({ children }) {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-        <main className="flex-1 min-h-screen bg-gray-50 md:ml-64 mt-14 p-5 pb-16 md:pb-0">
+        <main className="flex-1 min-h-screen bg-gray-50 md:ml-64 p-5 pb-16 md:pb-0">
           {children}
         </main>
         <div className="hidden xl:block xl:w-72 p-5 mt-14 bg-gray-50">

@@ -1,17 +1,17 @@
-// FeedPage.jsx
-"use client";
-import { useQuery } from "@tanstack/react-query";
-import PostCard from "@/components/feed/PostCard";
 import { useAppContext } from "@/context/context";
 import { fetchWithToken } from "@/helpers/api";
-import PostCardSkeletonList from "@/components/feed/PostCardSkletonList";
+import { useQuery } from "@tanstack/react-query";
+import PostCardSkeletonList from "../feed/PostCardSkletonList";
+import PostCard from "../feed/PostCard";
 
-export default function FeedPage() {
-  const { accessToken } = useAppContext();
-
-  // Get feed posts
+export default function ProfilePost() {
+  const { accessToken, userInfo } = useAppContext();
+  // Fetch personal posts
   const { data, isLoading, error } = useQuery({
-    queryKey: ["/feed_management/public/feed/all/post", accessToken],
+    queryKey: [
+      `/feed_management/private/feeds/all/post/${userInfo.id}`,
+      accessToken,
+    ],
     queryFn: fetchWithToken,
     enabled: !!accessToken,
   });
@@ -24,10 +24,10 @@ export default function FeedPage() {
   const posts = data?.data || [];
 
   return (
-    <main className="max-w-2xl mx-auto space-y-4 mt-14">
+    <div>
       {posts.map((post, i) => (
         <PostCard key={i} post={post} />
       ))}
-    </main>
+    </div>
   );
 }
