@@ -171,3 +171,65 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Media Swiper Styles Here */
+.swiper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.swiper-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.swiper-slide {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+/* Image container fixes */
+.swiper-slide > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure images are centered and contained */
+.swiper-slide img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.swiper-slide video {
+  display: block !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* Fix pagination position on mobile */
+.swiper-pagination {
+  bottom: 8px !important;
+}
+
+@media (min-width: 640px) {
+  .swiper-pagination {
+    bottom: 12px !important;
+  }
+}
+
+/* Add xs breakpoint if not already in your Tailwind config */
+@media (min-width: 475px) {
+  .xs\:h-\[320px\] {
+    height: 320px;
+  }
+  .xs\:max-h-\[320px\] {
+    max-height: 320px;
+  }
+}

@@ -8,10 +8,10 @@ import {
   Trash2,
   MoreVertical,
   X,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +33,17 @@ export default function PostComments({ post, allMedia }) {
   const [replyText, setReplyText] = useState("");
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
+
+  // Get user initials
+  const getUserInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   // Format date
   const formatDate = (dateString) => {
@@ -200,8 +211,7 @@ export default function PostComments({ post, allMedia }) {
   // Render single comment
   const renderComment = (comment, isReply = false) => {
     const isEditing = editingComment === comment.id;
-    const isOwner = comment.user_id === userInfo.id;
-
+    const isOwner = comment.is_deletable
     return (
       <div
         key={comment.id}
@@ -209,6 +219,9 @@ export default function PostComments({ post, allMedia }) {
       >
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarImage src={comment?.user?.profile_image} />
+          <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+            {getUserInitials(comment?.user?.name)}
+          </AvatarFallback>
         </Avatar>
 
         <div className="flex-1">
@@ -220,24 +233,30 @@ export default function PostComments({ post, allMedia }) {
                 </p>
                 {isEditing ? (
                   <div className="mt-2">
-                    <Textarea
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      className="min-h-[20px] resize-none bg-white"
-                      placeholder="Edit your comment..."
-                    />
-                    <div className="flex gap-2 mt-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpdateComment(comment.id)}
-                        disabled={updateCommentMutation.isPending}
-                        className="bg-secondary"
-                      >
-                        {updateCommentMutation.isPending ? "Saving..." : "Save"}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={cancelEdit}>
-                        Cancel
-                      </Button>
+                    <div className="relative">
+                      <Textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="min-h-[60px] resize-none bg-white pr-12"
+                        placeholder="Edit your comment..."
+                      />
+                      <div className="absolute right-2 bottom-2 flex gap-1">
+                        <button
+                          onClick={() => handleUpdateComment(comment.id)}
+                          disabled={updateCommentMutation.isPending}
+                          className="cursor-pointer p-2 rounded-full bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Save"
+                        >
+                          <Check size={16} />
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="cursor-pointer p-2 rounded-full bg-red-400 hover:bg-red-500 text-white transition-colors"
+                          title="Cancel"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -250,18 +269,18 @@ export default function PostComments({ post, allMedia }) {
               {isOwner && !isEditing && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="text-gray-500 hover:text-gray-700">
+                    <button className="cursor-pointer text-gray-500 hover:text-gray-700 p-1">
                       <MoreVertical size={16} />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => startEdit(comment)}>
+                    <DropdownMenuItem onClick={() => startEdit(comment)} className="cursor-pointer">
                       <Edit2 size={14} className="mr-2" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="text-red-600"
+                      className="cursor-pointer text-red-600"
                     >
                       <Trash2 size={14} className="mr-2" />
                       Delete
@@ -280,7 +299,7 @@ export default function PostComments({ post, allMedia }) {
             {!isReply && (
               <button
                 onClick={() => setReplyTo(comment.id)}
-                className="text-xs text-gray-600 hover:text-blue-600 font-medium"
+                className="cursor-pointer text-xs text-gray-600 hover:text-blue-600 font-medium"
               >
                 Reply
               </button>
@@ -289,32 +308,40 @@ export default function PostComments({ post, allMedia }) {
 
           {/* Reply input */}
           {replyTo === comment.id && (
-            <div className="mt-3 flex gap-2 items-center">
-              <Textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write a reply..."
-                className="min-h-[20px] resize-none"
-              />
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleAddReply(comment.id)}
-                  disabled={addCommentMutation.isPending}
-                  className="bg-secondary"
-                >
-                  <Send size={14} />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setReplyTo(null);
-                    setReplyText("");
-                  }}
-                >
-                  <X size={14} />
-                </Button>
+            <div className="mt-3 flex gap-2">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={userInfo?.user_image} />
+                <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+                  {getUserInitials(userInfo?.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 relative">
+                <Textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                  className="min-h-[60px] resize-none pr-12"
+                />
+                <div className="absolute right-2 bottom-2 flex gap-1">
+                  <button
+                    onClick={() => handleAddReply(comment.id)}
+                    disabled={addCommentMutation.isPending || !replyText.trim()}
+                    className="cursor-pointer p-2 rounded-full bg-secondary hover:bg-blue-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Send Reply"
+                  >
+                    <Send size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setReplyTo(null);
+                      setReplyText("");
+                    }}
+                    className="cursor-pointer p-2 rounded-full bg-red-400 hover:bg-red-500 text-white transition-colors"
+                    title="Cancel"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -331,7 +358,7 @@ export default function PostComments({ post, allMedia }) {
   };
 
   return (
-    <div className="max-h-[600px] overflow-y-auto">
+    <div className="max-h-[600px] overflow-y-auto pb-5">
       {/* Post content */}
       <div className="mb-4 pb-4 border-b">
         <PostContent description={post?.description} />
@@ -357,22 +384,25 @@ export default function PostComments({ post, allMedia }) {
         <div className="flex gap-3 mb-6">
           <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage src={userInfo?.user_image} />
+            <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+              {getUserInitials(userInfo?.name)}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex-1 flex gap-2 items-center">
+          <div className="flex-1 relative">
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
-              className="min-h-[20px] resize-none"
+              className="min-h-[60px] resize-none pr-12"
             />
-            <Button
+            <button
               onClick={handleAddComment}
               disabled={addCommentMutation.isPending || !newComment.trim()}
-              size="sm"
-              className="bg-secondary"
+              className="cursor-pointer absolute right-2 bottom-2 p-2 rounded-full bg-secondary hover:bg-blue-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Send Comment"
             >
               <Send size={16} />
-            </Button>
+            </button>
           </div>
         </div>
 

@@ -89,7 +89,12 @@ export default function AddPostPage() {
         editor?.commands.setContent("");
         setVisibility(1);
         setSelectedInterests([]);
-        queryClient.invalidateQueries(["/feed_management/public/feed/all/post"]);
+        queryClient.invalidateQueries({
+          queryKey: ["/feed_management/public/feed/all/post"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [`/feed_management/private/feeds/all/post/${userInfo.id}`],
+        });
       } else {
         toast.error(data.message);
       }
@@ -233,7 +238,7 @@ export default function AddPostPage() {
           disabled={isLoading}
           className="px-6 cursor-pointer bg-secondary/90 hover:bg-secondary"
         >
-          {isLoading ? "Creating Post..." : "Create Post"}
+          {isLoading ? "Creating Post" : "Create Post"}
         </Button>
       </div>
     </div>

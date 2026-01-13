@@ -80,7 +80,7 @@ export default function ReactionButton({ post, showLabel = true }) {
       <Popover open={showReactions} onOpenChange={setShowReactions}>
         <PopoverTrigger asChild>
           <button
-            className={`flex items-center gap-2 hover:scale-110 transition-all ${currentColor} ${
+            className={`flex items-center gap-2 cursor-pointer ${currentColor} ${
               currentReaction ? "font-semibold" : ""
             }`}
             onMouseEnter={() => setShowReactions(true)}

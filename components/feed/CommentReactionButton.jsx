@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/popover";
 
 const REACTIONS = {
-  like: { icon: Heart, label: "Like", color: "text-red-500" },
+  like: { icon: ThumbsUp, label: "Like", color: "text-blue-500" },
   love: { icon: Heart, label: "Love", color: "text-pink-500" },
   haha: { icon: Laugh, label: "Haha", color: "text-yellow-500" },
   wow: { icon: Smile, label: "Wow", color: "text-blue-500" },
@@ -75,7 +75,7 @@ export default function CommentReactionButton({ comment }) {
       <Popover open={showReactions} onOpenChange={setShowReactions}>
         <PopoverTrigger asChild>
           <button
-            className={`flex items-center gap-1 hover:scale-110 transition-all text-xs ${currentColor} ${
+            className={`flex items-center gap-1 cursor-pointer text-xs ${currentColor} ${
               currentReaction ? "font-semibold" : ""
             }`}
             onMouseEnter={() => setShowReactions(true)}

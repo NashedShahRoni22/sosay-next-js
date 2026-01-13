@@ -1,6 +1,5 @@
-import { Edit, MessageCircle, Share2 } from "lucide-react";
+import { Edit, MessageCircle, Share2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import {
   Dialog,
@@ -14,12 +13,56 @@ import PostComments from "./PostComments";
 import MediaSwiper from "./MediaSwiper";
 import ReactionButton from "./ReactionButton";
 import PostContent from "./PostContent";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAppContext } from "@/context/context";
+import { postWithToken } from "@/helpers/api";
+import { toast } from "react-hot-toast";
 
 export default function PostCard({ post }) {
-  const location = usePathname();
+  const queryClient = useQueryClient();
+  const { accessToken, userInfo } = useAppContext();
+  
   const images = post?.post_files?.filter((file) => file.file_type === 1) || [];
   const videos = post?.post_files?.filter((file) => file.file_type === 2) || [];
   const allMedia = [...images, ...videos].sort((a, b) => a.id - b.id);
+
+  // Delete post mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async (postId) => {
+      const formData = new FormData();
+      formData.append("_method", "DELETE");
+
+      return await postWithToken(
+        `/feed_management/private/posts/${postId}`,
+        formData,
+        accessToken
+      );
+    },
+    onSuccess: (data) => {
+      if (data.status === true) {
+        toast.success(data.message || "Post deleted successfully");
+        // Invalidate both profile and feed queries
+        queryClient.invalidateQueries({
+          queryKey: [`/feed_management/private/feeds/all/post/${userInfo.id}`],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["/feed_management/public/feed/all/post"],
+        });
+      } else {
+        toast.error(data.message || "Failed to delete post");
+      }
+    },
+    onError: () => {
+      toast.error("Failed to delete post");
+    },
+  });
+
+  // Handle delete post
+  const handleDeletePost = (postId) => {
+    if (confirm("Are you sure you want to delete this post?")) {
+      deletePostMutation.mutate(postId);
+    }
+  };
 
   // Format date nicely
   const formatDate = (dateString) => {
@@ -39,18 +82,21 @@ export default function PostCard({ post }) {
     });
   };
 
+  // Check if current user owns this post
+  const isOwner = userInfo?.id === post?.user?.id;
+
   return (
-    <div className="w-full bg-white border border-gray-200 rounded-xl p-4 mb-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className="w-full bg-white border border-gray-200 rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
         <Link href={`/app/profile/${post?.user?.id}`}>
-          <Avatar className="h-11 w-11 cursor-pointer ring-2 ring-gray-100 hover:ring-secondary transition-all">
+          <Avatar className="h-9 w-9 sm:h-11 sm:w-11 cursor-pointer ring-2 ring-gray-100 hover:ring-secondary transition-all">
             <AvatarImage src={post?.user?.profile_picture} />
           </Avatar>
         </Link>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <Link href={`/app/profile/${post?.user?.id}`}>
-            <p className="font-semibold text-gray-900 hover:text-secondary transition-colors cursor-pointer">
+            <p className="font-semibold text-sm sm:text-base text-gray-900 hover:text-secondary transition-colors cursor-pointer truncate">
               {post?.user?.name}
             </p>
           </Link>
@@ -58,10 +104,25 @@ export default function PostCard({ post }) {
             {formatDate(post?.created_at)}
           </p>
         </div>
-        {location === "/app/profile" && (
-          <Link href={`/app/post/${post?.id}`}>
-            <Edit className="size-4 text-gray-600 hover:text-secondary transition-colors" />
-          </Link>
+        {isOwner && (
+          <div className="flex gap-2">
+            <Link href={`/app/post/${post?.id}`}>
+              <div className="p-2 rounded-full bg-blue-50 hover:bg-blue-100 transition-all cursor-pointer group">
+                <Edit className="size-4 text-blue-500 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+              </div>
+            </Link>
+            <button 
+              onClick={() => handleDeletePost(post.id)}
+              disabled={deletePostMutation.isPending}
+              className="p-2 rounded-full bg-red-50 hover:bg-red-100 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              {deletePostMutation.isPending ? (
+                <div className="size-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Trash2 className="size-4 text-red-500 group-hover:text-red-600 transition-colors flex-shrink-0" />
+              )}
+            </button>
+          </div>
         )}
       </div>
 
@@ -73,11 +134,14 @@ export default function PostCard({ post }) {
 
       {/* Reactions Summary */}
       {post?.reactions_count > 0 && (
-        <div className="flex items-center gap-2 mb-2 text-xs text-gray-600">
+        <div className="flex items-center gap-2 mb-2 text-xs text-gray-600 overflow-x-auto">
           {post?.reaction_counts && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               {Object.entries(post.reaction_counts).map(([type, count]) => (
-                <span key={type} className="flex items-center gap-1">
+                <span
+                  key={type}
+                  className="flex items-center gap-1 whitespace-nowrap"
+                >
                   <span className="capitalize">{type}</span>
                   <span className="text-gray-400">({count})</span>
                 </span>
@@ -89,42 +153,46 @@ export default function PostCard({ post }) {
 
       {/* Actions */}
       <Dialog>
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-6">
+        <div className="flex justify-between items-center pt-2 sm:pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-3 sm:gap-6">
             {/* Reaction button */}
             <ReactionButton post={post} />
 
             {/* Comment button */}
             <DialogTrigger asChild>
-              <button className="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer">
-                <MessageCircle size={20} />
-                <span className="text-sm hidden md:block">Comment</span>
+              <button className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer">
+                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-xs sm:text-sm hidden md:block">
+                  Comment
+                </span>
               </button>
             </DialogTrigger>
 
             {/* Share button */}
-            <button className="flex items-center gap-2 text-gray-600 hover:text-green-500 transition-colors">
-              <Share2 size={20} />
-              <span className="text-sm hidden md:block">Share</span>
+            <button className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-green-500 transition-colors">
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-xs sm:text-sm hidden md:block">Share</span>
             </button>
           </div>
 
           <DialogTrigger asChild>
-            <button className="text-sm text-gray-500 hover:text-blue-500 cursor-pointer transition-colors font-medium">
+            <button className="text-xs sm:text-sm text-gray-500 hover:text-blue-500 cursor-pointer transition-colors font-medium whitespace-nowrap">
               {post?.comments?.length || 0} comments
             </button>
           </DialogTrigger>
         </div>
 
-        <DialogContent className="sm:max-w-3xl max-h-[90vh]">
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                 <AvatarImage src={post?.user?.profile_picture} />
               </Avatar>
-              <span>{post?.user?.name}'s Post</span>
+              <span className="text-sm sm:text-base truncate">
+                {post?.user?.name}'s Post
+              </span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               {formatDate(post?.created_at)}
             </DialogDescription>
           </DialogHeader>

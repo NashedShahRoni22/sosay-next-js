@@ -31,10 +31,10 @@ export default function TopBar() {
   ];
 
   return (
-    <section className="flex justify-between px-5 py-2 border-b border-gray-200 bg-white text-gray-700 fixed top-0 z-40 w-full">
+    <section className="flex justify-between items-center px-5 py-2 border-b border-gray-200 bg-white text-gray-700 fixed top-0 z-40 w-full">
       {/* brand logo  */}
       <div className="md:w-64">
-        <p className="uppercase font-bold text-4xl text-secondary">Sosay</p>
+        <p className="font-bold text-2xl lg:text-4xl text-secondary">SoSay</p>
       </div>
 
       {/* middle menus  */}
