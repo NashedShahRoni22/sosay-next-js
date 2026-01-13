@@ -63,6 +63,16 @@ export default function PostComments({ post, allMedia }) {
     });
   };
 
+  // Check permissions
+  const isPostOwner = post?.user_id === userInfo?.id;
+  const isCommentOwner = (comment) => comment?.user_id === userInfo?.id;
+  
+  // Can edit: Only if user is the comment author
+  const canEditComment = (comment) => isCommentOwner(comment);
+  
+  // Can delete: If user is comment author OR post owner
+  const canDeleteComment = (comment) => isCommentOwner(comment) || isPostOwner;
+
   // Add comment mutation
   const addCommentMutation = useMutation({
     mutationFn: async ({ postId, comment, parentId }) => {
@@ -211,7 +221,10 @@ export default function PostComments({ post, allMedia }) {
   // Render single comment
   const renderComment = (comment, isReply = false) => {
     const isEditing = editingComment === comment.id;
-    const isOwner = comment.is_deletable
+    const showEditOption = canEditComment(comment);
+    const showDeleteOption = canDeleteComment(comment);
+    const showMenu = showEditOption || showDeleteOption;
+
     return (
       <div
         key={comment.id}
@@ -266,7 +279,7 @@ export default function PostComments({ post, allMedia }) {
                 )}
               </div>
 
-              {isOwner && !isEditing && (
+              {showMenu && !isEditing && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="cursor-pointer text-gray-500 hover:text-gray-700 p-1">
@@ -274,17 +287,21 @@ export default function PostComments({ post, allMedia }) {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => startEdit(comment)} className="cursor-pointer">
-                      <Edit2 size={14} className="mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="cursor-pointer text-red-600"
-                    >
-                      <Trash2 size={14} className="mr-2" />
-                      Delete
-                    </DropdownMenuItem>
+                    {showEditOption && (
+                      <DropdownMenuItem onClick={() => startEdit(comment)} className="cursor-pointer">
+                        <Edit2 size={14} className="mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                    )}
+                    {showDeleteOption && (
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="cursor-pointer text-red-600"
+                      >
+                        <Trash2 size={14} className="mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -311,7 +328,7 @@ export default function PostComments({ post, allMedia }) {
             <div className="mt-3 flex gap-2">
               <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={userInfo?.user_image} />
-                <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+                <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
                   {getUserInitials(userInfo?.name)}
                 </AvatarFallback>
               </Avatar>
@@ -384,7 +401,7 @@ export default function PostComments({ post, allMedia }) {
         <div className="flex gap-3 mb-6">
           <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage src={userInfo?.user_image} />
-            <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+            <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
               {getUserInitials(userInfo?.name)}
             </AvatarFallback>
           </Avatar>

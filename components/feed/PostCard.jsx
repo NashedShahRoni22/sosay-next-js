@@ -1,6 +1,6 @@
 import { Edit, MessageCircle, Share2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import { toast } from "react-hot-toast";
 export default function PostCard({ post }) {
   const queryClient = useQueryClient();
   const { accessToken, userInfo } = useAppContext();
-  
+
   const images = post?.post_files?.filter((file) => file.file_type === 1) || [];
   const videos = post?.post_files?.filter((file) => file.file_type === 2) || [];
   const allMedia = [...images, ...videos].sort((a, b) => a.id - b.id);
@@ -92,6 +92,9 @@ export default function PostCard({ post }) {
         <Link href={`/app/profile/${post?.user?.id}`}>
           <Avatar className="h-9 w-9 sm:h-11 sm:w-11 cursor-pointer ring-2 ring-gray-100 hover:ring-secondary transition-all">
             <AvatarImage src={post?.user?.profile_picture} />
+            <AvatarFallback className="bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold capitalize">
+              {post?.user?.name?.[0]}
+            </AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex-1 min-w-0">
@@ -111,7 +114,7 @@ export default function PostCard({ post }) {
                 <Edit className="size-4 text-blue-500 group-hover:text-blue-600 transition-colors flex-shrink-0" />
               </div>
             </Link>
-            <button 
+            <button
               onClick={() => handleDeletePost(post.id)}
               disabled={deletePostMutation.isPending}
               className="p-2 rounded-full bg-red-50 hover:bg-red-100 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
@@ -186,7 +189,10 @@ export default function PostCard({ post }) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
-                <AvatarImage src={post?.user?.profile_picture} />
+                <AvatarImage src={userInfo?.user_image} />
+                <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+                  {userInfo?.name?.[0]}
+                </AvatarFallback>
               </Avatar>
               <span className="text-sm sm:text-base truncate">
                 {post?.user?.name}'s Post

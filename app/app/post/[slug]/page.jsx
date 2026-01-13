@@ -185,7 +185,7 @@ export default function UpdatePostPage() {
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={userInfo?.user_image} />
-          <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
+          <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">{userInfo?.name?.[0]}</AvatarFallback>
         </Avatar>
         <div>
           <h2 className="font-semibold text-lg">Update Post</h2>
