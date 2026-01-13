@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Mail,
   Phone,
@@ -194,42 +194,42 @@ export default function RegistrationForm() {
   ];
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8 relative min-h-screen">
+    <div className="min-h-screen w-full md:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 relative mt-14 md:mt-0">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-destructive"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-indigo-600"></div>
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 rounded-full bg-secondary"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-24 h-24 sm:w-36 sm:h-36 md:w-48 md:h-48 rounded-full bg-destructive"></div>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
-        className="w-full max-w-2xl relative z-10"
+        className="w-full max-w-sm sm:max-w-md lg:max-w-2xl relative z-10"
       >
         {/* Stepper Header */}
-        <div className="bg-white p-6 rounded-t-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
+        <div className="bg-white p-4 sm:p-6 rounded-t-xl shadow-sm border border-gray-100">
+          <div className="flex items-start justify-between gap-2">
             {steps.map((step, index) => (
-              <div key={step.number} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
+              <React.Fragment key={step.number}>
+                <div className="flex flex-col items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-base font-semibold transition-all duration-300 ${
                       currentStep >= step.number
-                        ? "bg-destructive text-white shadow-md"
+                        ? "bg-secondary text-white shadow-md"
                         : "bg-gray-200 text-gray-500"
                     }`}
                   >
                     {currentStep > step.number ? (
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
                       step.number
                     )}
                   </div>
                   <span
-                    className={`text-xs mt-2 font-medium ${
+                    className={`text-[10px] sm:text-xs mt-1 sm:mt-2 font-medium text-center max-w-[60px] sm:max-w-none ${
                       currentStep >= step.number
-                        ? "text-destructive"
+                        ? "text-secondary"
                         : "text-gray-400"
                     }`}
                   >
@@ -238,18 +238,18 @@ export default function RegistrationForm() {
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`h-1 flex-1 mx-2 rounded transition-all duration-300 self-start mt-5 ${
-                      currentStep > step.number ? "bg-destructive" : "bg-gray-200"
+                    className={`h-0.5 sm:h-1 flex-1 rounded transition-all duration-300 mt-4 sm:mt-5 ${
+                      currentStep > step.number ? "bg-secondary" : "bg-gray-200"
                     }`}
                   ></div>
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
 
         {/* Form Container */}
-        <div className="bg-white p-10 rounded-b-xl shadow-lg border-x border-b border-gray-100">
+        <div className="bg-white p-6 sm:p-8 md:p-10 rounded-b-xl shadow-lg border-x border-b border-gray-100">
           {currentStep === 1 && (
             <StepOne
               view={view}
@@ -290,11 +290,11 @@ export default function RegistrationForm() {
             />
           )}
 
-          <p className="text-sm text-center text-gray-500 mt-8">
+          <p className="text-xs sm:text-sm text-center text-gray-500 pt-6 sm:pt-8">
             Already have an account?{" "}
             <Link
               href="/"
-              className="text-destructive font-semibold hover:text-indigo-700 transition-colors"
+              className="text-destructive font-semibold hover:text-destructive/80 transition-colors"
             >
               Login
             </Link>
@@ -326,31 +326,31 @@ function StepOne({ view, setView, setEmail, isLoading, onSubmit }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
           Create Account
         </h2>
-        <p className="text-gray-500">Join Sosay in just a few steps</p>
+        <p className="text-sm sm:text-base text-gray-500">Join Sosay in just a few steps</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Full Name</Label>
+        <Label htmlFor="name" className="text-sm sm:text-base">Full Name</Label>
         <div className="relative">
           <Input
             id="name"
             placeholder="Enter your full name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="pr-10"
+            className="pr-10 text-sm sm:text-base h-10 sm:h-11"
           />
-          <User className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
         </div>
       </div>
 
       {view ? (
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phone" className="text-sm sm:text-base">Phone Number</Label>
           <div className="relative">
             <Input
               id="phone"
@@ -358,14 +358,14 @@ function StepOne({ view, setView, setEmail, isLoading, onSubmit }) {
               type="tel"
               value={phoneValue}
               onChange={(e) => setPhoneValue(e.target.value)}
-              className="pr-10"
+              className="pr-10 text-sm sm:text-base h-10 sm:h-11"
             />
-            <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
           </div>
         </div>
       ) : (
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
+          <Label htmlFor="email" className="text-sm sm:text-base">Email Address</Label>
           <div className="relative">
             <Input
               id="email"
@@ -373,9 +373,9 @@ function StepOne({ view, setView, setEmail, isLoading, onSubmit }) {
               type="email"
               value={emailValue}
               onChange={(e) => setEmailValue(e.target.value)}
-              className="pr-10"
+              className="pr-10 text-sm sm:text-base h-10 sm:h-11"
             />
-            <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
           </div>
         </div>
       )}
@@ -384,18 +384,18 @@ function StepOne({ view, setView, setEmail, isLoading, onSubmit }) {
         type="button"
         variant="link"
         onClick={() => setView(!view)}
-        className="text-destructive hover:text-destructive/80 p-0 h-auto font-medium w-full text-right"
+        className="text-xs sm:text-sm text-secondary hover:text-secondary/80 p-0 h-auto font-medium w-full text-left -mt-2"
       >
         {view ? "Use email instead" : "Use phone instead"}
       </Button>
 
       <div className="space-y-2">
-        <Label>Date of Birth</Label>
+        <Label className="text-sm sm:text-base">Date of Birth</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-start text-left font-normal h-11"
+              className="w-full justify-start text-left font-normal h-10 sm:h-11 text-sm sm:text-base"
             >
               <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               {date ? (
@@ -416,21 +416,21 @@ function StepOne({ view, setView, setEmail, isLoading, onSubmit }) {
         </Popover>
       </div>
 
-      <motion.div whileTap={{ scale: 0.98 }}>
+      <motion.div whileTap={{ scale: 0.98 }} className="pt-2">
         <Button
           onClick={handleSubmit}
           disabled={isLoading || !name || (!emailValue && !phoneValue) || !date}
-          className="w-full bg-gradient-to-br from-destructive to-indigo-600 text-white font-semibold py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+          className="w-full bg-secondary text-white font-semibold py-5 sm:py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-sm sm:text-base hover:bg-secondary/90"
         >
           {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
               Processing...
             </>
           ) : (
             <>
               Continue
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </>
           )}
         </Button>
@@ -448,18 +448,18 @@ function StepTwo({ view, email, isLoading, onBack, onSubmit }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
           Verify Your {view ? "Phone" : "Email"}
         </h2>
-        <p className="text-gray-500">
+        <p className="text-sm sm:text-base text-gray-500">
           We've sent a 6-digit code to {view ? "your phone" : email}
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="otp">OTP Code</Label>
+        <Label htmlFor="otp" className="text-sm sm:text-base">OTP Code</Label>
         <Input
           id="otp"
           placeholder="000000"
@@ -467,18 +467,18 @@ function StepTwo({ view, email, isLoading, onBack, onSubmit }) {
           maxLength={6}
           value={otpCode}
           onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-          className="text-center text-2xl tracking-widest h-14"
+          className="text-center text-xl sm:text-2xl tracking-widest h-12 sm:h-14"
         />
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-2">
         <motion.div whileTap={{ scale: 0.98 }}>
           <Button
             onClick={onBack}
             variant="outline"
-            className="px-8 py-6 font-semibold"
+            className="px-6 sm:px-8 py-5 sm:py-6 font-semibold text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Back
           </Button>
         </motion.div>
@@ -486,17 +486,17 @@ function StepTwo({ view, email, isLoading, onBack, onSubmit }) {
           <Button
             onClick={handleSubmit}
             disabled={isLoading || otpCode.length !== 6}
-            className="w-full bg-gradient-to-br from-destructive to-indigo-600 text-white font-semibold py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+            className="w-full bg-secondary text-white font-semibold py-5 sm:py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-sm sm:text-base hover:bg-secondary/90"
           >
             {isLoading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Verifying...
               </>
             ) : (
               <>
                 Verify OTP
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </>
             )}
           </Button>
@@ -531,20 +531,20 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
           Secure Your Account
         </h2>
-        <p className="text-gray-500">
+        <p className="text-sm sm:text-base text-gray-500">
           Create a strong password and tell us about yourself
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="gender">Gender</Label>
+        <Label htmlFor="gender" className="text-sm sm:text-base">Gender</Label>
         <Select value={gender} onValueChange={setGender}>
-          <SelectTrigger id="gender" className="h-11">
+          <SelectTrigger id="gender" className="h-10 sm:h-11 text-sm sm:text-base">
             <SelectValue placeholder="Select Gender" />
           </SelectTrigger>
           <SelectContent>
@@ -556,7 +556,7 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
         <div className="relative">
           <Input
             id="password"
@@ -564,7 +564,7 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pr-10"
+            className="pr-10 text-sm sm:text-base h-10 sm:h-11"
           />
           <button
             type="button"
@@ -572,16 +572,16 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             {showPassword ? (
-              <EyeOff className="w-5 h-5" />
+              <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <Eye className="w-5 h-5" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password_confirmation">Confirm Password</Label>
+        <Label htmlFor="password_confirmation" className="text-sm sm:text-base">Confirm Password</Label>
         <div className="relative">
           <Input
             id="password_confirmation"
@@ -589,7 +589,7 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
             type={showPasswordConfirmation ? "text" : "password"}
             value={passwordConfirmation}
             onChange={(e) => setPasswordConfirmation(e.target.value)}
-            className="pr-10"
+            className="pr-10 text-sm sm:text-base h-10 sm:h-11"
           />
           <button
             type="button"
@@ -599,9 +599,9 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             {showPasswordConfirmation ? (
-              <EyeOff className="w-5 h-5" />
+              <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <Eye className="w-5 h-5" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
           </button>
         </div>
@@ -611,14 +611,14 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
         Password must be at least 8 characters long
       </p>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-2">
         <motion.div whileTap={{ scale: 0.98 }}>
           <Button
             onClick={onBack}
             variant="outline"
-            className="px-8 py-6 font-semibold"
+            className="px-6 sm:px-8 py-5 sm:py-6 font-semibold text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Back
           </Button>
         </motion.div>
@@ -631,17 +631,17 @@ function StepThree({ userId, isLoading, onBack, onSubmit }) {
               password.length < 8 ||
               passwordConfirmation.length < 8
             }
-            className="w-full bg-gradient-to-br from-destructive to-indigo-600 text-white font-semibold py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+            className="w-full bg-secondary text-white font-semibold py-5 sm:py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-sm sm:text-base hover:bg-secondary/90"
           >
             {isLoading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Processing...
               </>
             ) : (
               <>
                 Continue
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </>
             )}
           </Button>
@@ -661,37 +661,36 @@ function StepFour({
   onImageChange,
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
           Add Profile Photo
         </h2>
-        <p className="text-gray-500">
+        <p className="text-sm sm:text-base text-gray-500">
           Make your profile stand out with a photo
         </p>
       </div>
 
-      <div className="flex flex-col items-center py-8">
+      <div className="flex flex-col items-center py-6 sm:py-8">
         {imagePreview ? (
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-40 h-40 rounded-full object-cover border-4 border-destructive shadow-lg"
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-secondary shadow-lg"
             />
             <Button
               onClick={() => setImagePreview(null)}
               size="icon"
-              variant="destructive"
-              className="absolute -top-2 -right-2 rounded-full h-8 w-8"
+              className="absolute -top-2 -right-2 rounded-full h-7 w-7 sm:h-8 sm:w-8 bg-destructive hover:bg-destructive/90 text-white"
             >
               ×
             </Button>
           </div>
         ) : (
-          <label className="w-40 h-40 rounded-full border-4 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-destructive transition-all bg-gray-50 hover:bg-gray-100">
-            <Upload className="w-10 h-10 text-gray-400 mb-2" />
-            <span className="text-sm text-gray-500 font-medium">
+          <label className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-secondary transition-all bg-gray-50 hover:bg-gray-100">
+            <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mb-2" />
+            <span className="text-xs sm:text-sm text-gray-500 font-medium">
               Upload Photo
             </span>
             <input
@@ -704,14 +703,14 @@ function StepFour({
         )}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 pt-2">
         <motion.div whileTap={{ scale: 0.98 }}>
           <Button
             onClick={onBack}
             variant="outline"
-            className="px-8 py-6 font-semibold"
+            className="px-6 sm:px-8 py-5 sm:py-6 font-semibold text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             Back
           </Button>
         </motion.div>
@@ -719,17 +718,17 @@ function StepFour({
           <Button
             onClick={onSubmit}
             disabled={isLoading}
-            className="w-full bg-gradient-to-br from-destructive to-indigo-600 text-white font-semibold py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+            className="w-full bg-secondary text-white font-semibold py-5 sm:py-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 text-sm sm:text-base hover:bg-secondary/90"
           >
             {isLoading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Uploading...
               </>
             ) : (
               <>
                 Complete Registration
-                <CheckCircle className="w-5 h-5 ml-2" />
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </>
             )}
           </Button>

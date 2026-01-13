@@ -23,13 +23,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchWithToken, postWithToken } from "@/helpers/api";
 import { useParams } from "next/navigation";
 import { useAppContext } from "@/context/context";
+import PostCardSkleton from "@/components/feed/PostCardSkleton";
 
 export default function UpdatePostPage() {
   const { slug } = useParams();
   const { accessToken, userInfo } = useAppContext();
   const router = useRouter();
   const queryClient = useQueryClient();
-  
+
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [selectedInterests, setSelectedInterests] = useState([]);
@@ -74,7 +75,7 @@ export default function UpdatePostPage() {
     if (post && editor && !isInitialized) {
       editor.commands.setContent(post.description || "");
       setVisibility(post.visibility_id || 1);
-      setSelectedInterests(post.interests?.map(i => i.id) || []);
+      setSelectedInterests(post.interests?.map((i) => i.id) || []);
       setExistingImages(post.post_files || []);
       setIsInitialized(true);
     }
@@ -119,8 +120,12 @@ export default function UpdatePostPage() {
     onSuccess: (data) => {
       if (data.status === true) {
         toast.success(data.message || "Post updated successfully");
-        queryClient.invalidateQueries([`/feed_management/private/feeds/all/post/${userInfo.id}`]);
-        queryClient.invalidateQueries([`/feed_management/private/posts/${slug}`]);
+        queryClient.invalidateQueries([
+          `/feed_management/private/feeds/all/post/${userInfo.id}`,
+        ]);
+        queryClient.invalidateQueries([
+          `/feed_management/private/posts/${slug}`,
+        ]);
         router.push("/app/profile");
       } else {
         toast.error(data.message || "Failed to update post");
@@ -160,8 +165,8 @@ export default function UpdatePostPage() {
 
   if (isLoadingPost) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="max-w-2xl mx-auto mt-14">
+        <PostCardSkleton />
       </div>
     );
   }
@@ -180,6 +185,7 @@ export default function UpdatePostPage() {
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
           <AvatarImage src={userInfo?.user_image} />
+          <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>
         </Avatar>
         <div>
           <h2 className="font-semibold text-lg">Update Post</h2>
@@ -321,7 +327,7 @@ export default function UpdatePostPage() {
             disabled={isLoading}
             className="px-6 cursor-pointer bg-secondary/90 hover:bg-secondary"
           >
-            {isLoading ? "Updating..." : "Update Post"}
+            {isLoading ? "Updating Post" : "Update Post"}
           </Button>
         </div>
       </div>

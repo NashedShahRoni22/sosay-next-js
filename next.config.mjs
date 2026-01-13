@@ -8,8 +8,14 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
-    domains: ["api.sosay.org"],
+    domains: ["api.sosay.org","images.unsplash.com"],
   },
 };
 

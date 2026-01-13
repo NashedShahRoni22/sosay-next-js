@@ -273,8 +273,8 @@ export default function ProfilePage() {
               src={userInfo?.user_image}
               alt="Profile Image"
               className="size-32 md:size-40 rounded-full object-cover border-4 border-white"
-              height={1000}
-              width={1000}
+              height={500}
+              width={500}
             />
             <button
               onClick={handleOpenProfileDialog}
