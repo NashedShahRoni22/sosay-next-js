@@ -234,7 +234,7 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
 // Main Friends Page Component
 export default function FriendsPage() {
   return (
-    <div className="max-w-2xl mx-auto p-6 mt-14 ">
+    <section className="max-w-2xl mx-auto p-6 mt-14 ">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Friends</h1>
         <p className="text-gray-600">
@@ -282,6 +282,6 @@ export default function FriendsPage() {
           />
         </TabsContent>
       </Tabs>
-    </div>
+    </section>
   );
 }

@@ -33,6 +33,7 @@ const menuItems = [
 
 export default function AppSidebar({ isOpen, onClose }) {
   const { userInfo, logout, pathname } = useAppContext();
+  const isMessageRoute = pathname?.startsWith('/app/message');
   return (
     <>
       {/* Overlay for mobile */}
@@ -46,7 +47,7 @@ export default function AppSidebar({ isOpen, onClose }) {
       <aside
         className={clsx(
           "fixed h-screen overflow-y-auto w-64 bg-white border-r border-gray-200 text-gray-800 z-50 flex flex-col transition-transform duration-300 shadow-lg",
-          isOpen ? "translate-x-0 top-0" : "-translate-x-full top-14",
+          isOpen ? "translate-x-0" : "-translate-x-full", isMessageRoute ? "top-0 lg:top-14" : "top-14",
           "md:translate-x-0"
         )}
       >
