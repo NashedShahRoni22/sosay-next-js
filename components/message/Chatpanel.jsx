@@ -157,9 +157,9 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
       {receiver ? (
         <div className="rounded-xl flex flex-col h-[calc(100dvh-90px)] bg-card shadow-sm">
           {/* Chat Header */}
-          <div className="border-b px-4 py-3 flex items-center gap-3 bg-card mt-2">
+          <div className="border-b px-4 py-3 flex items-center gap-3 bg-card">
             
-            <button className="sm:hidden" onClick={()=> setShowChatPanel(false)}>
+            <button className="lg:hidden" onClick={()=> setShowChatPanel(false)}>
                 <ArrowLeft className="text-gray-400"/>
             </button>
             <Avatar className="h-10 w-10">
