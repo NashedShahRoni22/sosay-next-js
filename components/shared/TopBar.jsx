@@ -34,8 +34,7 @@ export default function TopBar() {
 
   return (
     <section className={clsx(
-      "justify-between items-center px-5 py-2 border-b border-gray-200 bg-white text-gray-700 fixed top-0 z-40 w-full",
-      isMessageRoute ? "hidden lg:flex" : "flex lg:flex"
+      "flex justify-between items-center px-5 py-2 border-b border-gray-200 bg-white text-gray-700 fixed top-0 z-40 w-full"
     )}>
       {/* brand logo  */}
       <div className="md:w-64">

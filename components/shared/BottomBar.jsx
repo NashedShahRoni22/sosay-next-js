@@ -22,7 +22,7 @@ export default function BottomBar({ onUserClick }) {
   const isMessageRoute = pathname?.startsWith('/app/message');
 
   return (
-    <div className={`fixed bottom-0 left-0 w-full border-t border-gray-200 bg-white text-gray-700 flex justify-around items-center py-2 md:hidden z-40 shadow-lg ${isMessageRoute ? 'hidden' : ''}`}>
+    <div className={`fixed bottom-0 left-0 w-full border-t border-gray-200 bg-white text-gray-700 flex justify-around items-center py-2 md:hidden z-40 shadow-lg`}>
       {items.map((item) => {
         const Icon = item.icon;
         return (
