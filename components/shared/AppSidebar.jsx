@@ -16,11 +16,28 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useAppContext } from "@/context/context";
 import Image from "next/image";
+import { fetchWithToken } from "@/helpers/api";
+import { useQuery } from "@tanstack/react-query";
 
-const menuItems = [
+export default function AppSidebar({ isOpen, onClose }) {
+  const { userInfo, logout, pathname, accessToken } = useAppContext();
+  const isMessageRoute = pathname?.startsWith('/app/message');
+
+  // Fetch Inbox Data to calculate total unread
+  const { data: inboxData } = useQuery({
+    queryKey: ["/chat/inbox", accessToken],
+    queryFn: fetchWithToken,
+    enabled: !!accessToken,
+    staleTime: Infinity, 
+  });
+
+  // Calculate Total Unread Count
+  const totalUnread = inboxData?.data?.reduce((sum, chat) => sum + (chat.unread_count || 0), 0) || 0;
+  console.log("totalUnread",totalUnread);
+  const menuItems = [
   { name: "Home", icon: Home, href: "/app" },
   { name: "Create", icon: PlusCircle, href: "/app/create" },
-  { name: "Message", icon: MessageCircle, href: "/app/message" },
+  { name: "Message", icon: MessageCircle, href: "/app/message", count: totalUnread },
   { name: "Reels", icon: Video, href: "/app/reels" },
   { name: "Shop", icon: Store, href: "/app/app/shop" },
   { name: "Friends", icon: Users, href: "/app/friends" },
@@ -30,10 +47,6 @@ const menuItems = [
   { name: "Settings", icon: Settings, href: "/app/settings" },
   // { name: "Log Out", icon: LogOut, href: "/login" },
 ];
-
-export default function AppSidebar({ isOpen, onClose }) {
-  const { userInfo, logout, pathname } = useAppContext();
-  const isMessageRoute = pathname?.startsWith('/app/message');
   return (
     <>
       {/* Overlay for mobile */}
@@ -93,6 +106,13 @@ export default function AppSidebar({ isOpen, onClose }) {
               >
                 <Icon size={22} />
                 <span className="font-medium">{item.name}</span>
+                {
+                  totalUnread > 0 && item.name === "Message" && (
+                    <span className="ml-auto inline-flex items-center justify-center size-6 text-sm font-bold leading-none text-white bg-secondary rounded-full">
+                      {totalUnread}
+                    </span>
+                  )
+                }
               </Link>
             );
           })}

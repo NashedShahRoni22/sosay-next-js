@@ -5,7 +5,7 @@ import { useAppContext } from "@/context/context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowBigLeft, ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Setup Echo to listen to Reverb
@@ -56,7 +56,12 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
             },
           }
         );
-        
+
+        if (response) {
+          queryClient.invalidateQueries({
+            queryKey: [`/chat/inbox`],
+          });
+        }
 
         const data = await response.json();
         const messages = Array.isArray(data) ? data : data.data;
@@ -65,7 +70,6 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
           console.error("Unexpected data format", data);
           return;
         }
-        
 
         const formattedHistory = messages.map((msg) => ({
           text: msg.message,
@@ -124,7 +128,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         }),
       });
 
-      if(response){
+      if (response) {
         queryClient.invalidateQueries({
           queryKey: [`/chat/inbox`],
         });
@@ -153,14 +157,16 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
   };
 
   return (
-    <section className="w-full">
+    <section className="w-full h-full">
       {receiver ? (
-        <div className="rounded-xl flex flex-col h-[calc(100dvh-90px)] bg-card shadow-sm">
+        <div className="flex flex-col h-full lg:h-[calc(100dvh-90px)] bg-card shadow-sm lg:rounded-xl">
           {/* Chat Header */}
-          <div className="border-b px-4 py-3 flex items-center gap-3 bg-card">
-            
-            <button className="lg:hidden" onClick={()=> setShowChatPanel(false)}>
-                <ArrowLeft className="text-gray-400"/>
+          <div className="border-b px-4 py-3 flex items-center gap-3 bg-card lg:rounded-t-xl">
+            <button
+              className="lg:hidden"
+              onClick={() => setShowChatPanel(false)}
+            >
+              <ArrowLeft className="text-gray-400" />
             </button>
             <Avatar className="h-10 w-10">
               <AvatarImage src={receiver?.avatar} alt={receiver?.name} />
@@ -171,7 +177,13 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
             <div>
               <h2 className="font-semibold text-lg">{receiver?.name}</h2>
               <p className="text-xs text-muted-foreground">
-                {receiver?.is_online ? "Active now" : "Offline"}
+                {receiver?.is_online ? (
+                  "Active now"
+                ) : (
+                  <span className="text-xs text-muted-foreground mt-1">
+                    {receiver?.last_seen}
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -210,7 +222,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
           </div>
 
           {/* Message Input */}
-          <div className="border-t rounded-xl p-4 bg-card">
+          <div className="border-t p-4 bg-card lg:rounded-b-xl">
             <div className="flex gap-2">
               <Input
                 type="text"

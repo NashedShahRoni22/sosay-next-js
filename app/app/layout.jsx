@@ -5,12 +5,14 @@ import BottomBar from "@/components/shared/BottomBar";
 import TopBar from "@/components/shared/TopBar";
 import SuggestionList from "@/components/feed/SuggestionList";
 import PrivateRoute from "@/components/private/PrivateRoute";
+import GlobalListener from "@/listener/GlobalListener";
 
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <PrivateRoute>
+      {/* <GlobalListener/> */}
       <TopBar />
       <div className="flex min-h-screen bg-white">
         <AppSidebar

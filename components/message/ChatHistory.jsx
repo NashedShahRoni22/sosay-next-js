@@ -4,6 +4,7 @@ import { fetchWithToken } from "@/helpers/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dot } from "lucide-react";
 
 // Skeleton component for loading state
 function ChatCardSkeleton() {
@@ -66,20 +67,19 @@ function ChatCard({ chat, receiver }) {
             <div className="flex items-center justify-between mb-1">
               <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
               <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
-                {chat.time}
+                {chat.last_seen}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground truncate">
-                {chat.is_file ? "📎 File" : chat.last_message}{" "}
-                {/* {!chat.is_online && (
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {chat.last_seen}
-                  </span>
-                )} */}
+            <div
+              className={`flex items-center justify-between ${chat.unread_count > 0 ? "text-primary font-semibold" : "text-muted-foreground"}`}
+            >
+              <p className={`text-sm truncate flex items-center`}>
+                {chat.is_file ? "📎 File" : chat.last_message}
+                <Dot/>
+                <span className="text-xs">{chat.time}</span>
               </p>
               {chat.unread_count > 0 && (
-                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-xs text-primary-foreground">
                   {chat.unread_count}
                 </span>
               )}
