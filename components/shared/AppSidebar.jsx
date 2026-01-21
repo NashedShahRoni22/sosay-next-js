@@ -8,7 +8,6 @@ import {
   MessageCircle,
   Bell,
   Bookmark,
-  UserCircle2,
   PlusCircle,
   LogOut,
 } from "lucide-react";
@@ -18,35 +17,40 @@ import { useAppContext } from "@/context/context";
 import Image from "next/image";
 import { fetchWithToken } from "@/helpers/api";
 import { useQuery } from "@tanstack/react-query";
+import defaultProfile from "../../app/assets/designs/girl.png";
 
 export default function AppSidebar({ isOpen, onClose }) {
   const { userInfo, logout, pathname, accessToken } = useAppContext();
-  const isMessageRoute = pathname?.startsWith('/app/message');
 
   // Fetch Inbox Data to calculate total unread
   const { data: inboxData } = useQuery({
     queryKey: ["/chat/inbox", accessToken],
     queryFn: fetchWithToken,
     enabled: !!accessToken,
-    staleTime: Infinity, 
+    staleTime: Infinity,
   });
 
   // Calculate Total Unread Count
-  const totalUnread = inboxData?.data?.reduce((sum, chat) => sum + (chat.unread_count || 0), 0) || 0;
-  console.log("totalUnread",totalUnread);
+  const totalUnread =
+    inboxData?.data?.reduce((sum, chat) => sum + (chat.unread_count || 0), 0) ||
+    0;
   const menuItems = [
-  { name: "Home", icon: Home, href: "/app" },
-  { name: "Create", icon: PlusCircle, href: "/app/create" },
-  { name: "Message", icon: MessageCircle, href: "/app/message", count: totalUnread },
-  { name: "Reels", icon: Video, href: "/app/reels" },
-  { name: "Shop", icon: Store, href: "/app/app/shop" },
-  { name: "Friends", icon: Users, href: "/app/friends" },
-  { name: "Pages", icon: Layers, href: "/app/pages" },
-  { name: "Bookmark", icon: Bookmark, href: "/app/bookmark" },
-  { name: "Notifications", icon: Bell, href: "/app/notifications" },
-  { name: "Settings", icon: Settings, href: "/app/settings" },
-  // { name: "Log Out", icon: LogOut, href: "/login" },
-];
+    { name: "Home", icon: Home, href: "/app" },
+    { name: "Create", icon: PlusCircle, href: "/app/create" },
+    {
+      name: "Message",
+      icon: MessageCircle,
+      href: "/app/message",
+      count: totalUnread,
+    },
+    { name: "Reels", icon: Video, href: "/app/reels" },
+    { name: "Shop", icon: Store, href: "/app/app/shop" },
+    { name: "Friends", icon: Users, href: "/app/friends" },
+    { name: "Pages", icon: Layers, href: "/app/pages" },
+    { name: "Bookmark", icon: Bookmark, href: "/app/bookmark" },
+    { name: "Notifications", icon: Bell, href: "/app/notifications" },
+    { name: "Settings", icon: Settings, href: "/app/settings" },
+  ];
   return (
     <>
       {/* Overlay for mobile */}
@@ -56,22 +60,22 @@ export default function AppSidebar({ isOpen, onClose }) {
           onClick={onClose}
         />
       )}
-
+      {/* isMessageRoute ? "top-0 lg:top-14" : "top-14", */}
       <aside
         className={clsx(
-          "fixed h-screen overflow-y-auto w-64 bg-white border-r border-gray-200 text-gray-800 z-50 flex flex-col transition-transform duration-300 shadow-lg",
-          isOpen ? "translate-x-0" : "-translate-x-full", isMessageRoute ? "top-0 lg:top-14" : "top-14",
-          "md:translate-x-0"
+          "fixed h-screen w-64 bg-white text-gray-800 z-50 flex flex-col transition-transform duration-300",
+          isOpen ? "translate-x-0 top-0" : "-translate-x-full top-14",
+          "md:translate-x-0 md:top-14 md:h-[calc(100vh-3.5rem)]",
         )}
       >
         {/* User Profile Section */}
         {userInfo && (
           <Link
             href="/app/profile"
-            className="flex items-center gap-3 px-5 py-4 border-y border-gray-200 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 px-5 py-4 border-y border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
           >
             <Image
-              src={userInfo?.user_image || "/default-avatar.png"}
+              src={userInfo?.user_image || defaultProfile}
               alt="Profile"
               className="size-16 md:size-20 rounded-full object-cover border-4"
               height={500}
@@ -87,49 +91,50 @@ export default function AppSidebar({ isOpen, onClose }) {
         )}
 
         {/* Navigation Menu */}
-        <nav className="flex-1 flex flex-col overflow-y-auto">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => {
-                  // setActive(item.name);
-                  onClose();
-                }}
-                className={clsx(
-                  "flex items-center gap-4 px-5 py-3 rounded-xl mx-2 my-1 transition-all hover:bg-gray-100",
-                  pathname === item.href &&
-                    "text-secondary font-medium bg-gray-100"
-                )}
-              >
-                <Icon size={22} />
-                <span className="font-medium">{item.name}</span>
-                {
-                  totalUnread > 0 && item.name === "Message" && (
+        <nav className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex flex-col py-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => {
+                    onClose();
+                  }}
+                  className={clsx(
+                    "flex items-center gap-4 px-5 py-3 rounded-xl mx-2 my-1 transition-all hover:bg-gray-100",
+                    pathname === item.href &&
+                      "text-secondary font-medium bg-gray-100",
+                  )}
+                >
+                  <Icon size={22} />
+                  <span className="font-medium">{item.name}</span>
+                  {totalUnread > 0 && item.name === "Message" && (
                     <span className="ml-auto inline-flex items-center justify-center size-6 text-sm font-bold leading-none text-white bg-secondary rounded-full">
                       {totalUnread}
                     </span>
-                  )
-                }
-              </Link>
-            );
-          })}
-          
-          {/* Log Out button here  */}
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Log Out button - Fixed at bottom */}
+        <div className="flex-shrink-0 p-2 border-t border-gray-200">
           <button
             onClick={() => {
               logout();
+              onClose();
             }}
-            className={clsx(
-              "cursor-pointer flex items-center gap-4 px-5 py-3 rounded-xl mx-2 my-1 transition-all hover:bg-red-100 bg-red-50 text-primary border border-red-200 font-medium"
-            )}
+            className="w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all hover:bg-red-100 bg-red-50 text-red-600 border border-red-200 font-medium"
           >
             <LogOut size={22} />
             <span className="font-medium">Log Out</span>
           </button>
-        </nav>
+        </div>
       </aside>
     </>
   );

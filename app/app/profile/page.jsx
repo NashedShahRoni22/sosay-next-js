@@ -15,16 +15,15 @@ import {
 import { Button } from "@/components/ui/button";
 import ProfilePost from "@/components/profile/ProfilePost";
 import Image from "next/image";
-
-// Default cover image - replace with your actual path
-const defaultCover = "/assets/designs/welcome.png";
+import defaultCover from "../../assets/designs/Welcome.png";
+import defaultProfile from "../../assets/designs/girl.png";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken } = useAppContext();
   const queryClient = useQueryClient();
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openCoverDialog, setOpenCoverDialog] = useState(false);
-  const [profilePreview, setProfilePreview] = useState(userInfo?.user_image);
+  const [profilePreview, setProfilePreview] = useState(userInfo?.user_image || defaultProfile);
   const [coverPreview, setCoverPreview] = useState(
     userInfo?.user_cover_image || defaultCover
   );

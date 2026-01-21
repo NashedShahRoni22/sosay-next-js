@@ -246,7 +246,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center h-screen bg-background">
+        <div className="flex flex-1 items-center justify-center h-[80vh] bg-background rounded-xl shadow-sm">
           <p className="text-muted-foreground">
             Select a chat to start messaging
           </p>
