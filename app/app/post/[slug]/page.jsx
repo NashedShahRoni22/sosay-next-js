@@ -33,6 +33,8 @@ export default function UpdatePostPage() {
 
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  console.log(existingImages);
+  
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [visibility, setVisibility] = useState(1);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -202,13 +204,13 @@ export default function UpdatePostPage() {
       {existingImages.length > 0 && (
         <div className="space-y-2">
           <p className="text-sm font-medium">Current Images</p>
-          <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
             {existingImages.map((image, index) => (
               <div
                 key={index}
                 className="relative group rounded-lg overflow-hidden"
               >
-                <Image
+                <img
                   src={image.file_name || image}
                   alt={`Existing ${index}`}
                   className="w-full h-40 object-cover"

@@ -4,7 +4,9 @@ import { fetchWithToken } from "@/helpers/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dot } from "lucide-react";
+import { Dot, Paperclip } from "lucide-react";
+import ChatSearch from "./ChatSearch";
+import { useState } from "react";
 
 // Skeleton component for loading state
 function ChatCardSkeleton() {
@@ -29,8 +31,6 @@ function ChatCardSkeleton() {
 
 // Chat card component
 function ChatCard({ chat, receiver }) {
-  //   console.log(chat);
-
   const getInitials = (name) => {
     return name
       .split(" ")
@@ -38,6 +38,23 @@ function ChatCard({ chat, receiver }) {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Check if the message is a file (is_file is either 1 or true)
+  const isFileMessage = chat.is_file === 1 || chat.is_file === true;
+
+  // Safely get the last message text
+  const getLastMessageText = () => {
+    if (typeof chat.last_message === "string") {
+      return chat.last_message;
+    } else if (
+      typeof chat.last_message === "object" &&
+      chat.last_message !== null
+    ) {
+      // If last_message is an object, try to get the message property
+      return chat.last_message.message || "Message";
+    }
+    return "Message";
   };
 
   return (
@@ -74,8 +91,15 @@ function ChatCard({ chat, receiver }) {
               className={`flex items-center justify-between ${chat.unread_count > 0 ? "text-primary font-semibold" : "text-muted-foreground"}`}
             >
               <p className={`text-sm truncate flex items-center`}>
-                {chat.is_file ? "📎 File" : chat.last_message}
-                <Dot/>
+                {isFileMessage ? (
+                  <>
+                    <Paperclip className="h-3 w-3 mr-1" />
+                    <span>File</span>
+                  </>
+                ) : (
+                  getLastMessageText()
+                )}
+                <Dot />
                 <span className="text-xs">{chat.time}</span>
               </p>
               {chat.unread_count > 0 && (
@@ -97,6 +121,7 @@ export default function ChatHistory({
   setShowChatPanel,
 }) {
   const { accessToken } = useAppContext();
+  const [isSearching, setIsSearching] = useState(false);
 
   // Fetch chat history
   const { data: chatHistory, isLoading: chatHistoryLoading } = useQuery({
@@ -114,37 +139,41 @@ export default function ChatHistory({
         </p>
       </div>
 
-      <div className="h-[calc(100dvh-192px)] overflow-y-auto">
-        {chatHistoryLoading ? (
-          // Show skeleton loaders
-          <div>
-            {[...Array(5)].map((_, index) => (
-              <ChatCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : chatHistory?.data?.length > 0 ? (
-          // Show chat cards
-          <div>
-            {chatHistory.data.map((chat) => (
-              <button
-                key={chat.user_id}
-                onClick={() => {
-                  setReceiver(chat);
-                  setShowChatPanel(true);
-                }}
-                className="cursor-pointer w-full"
-              >
-                <ChatCard chat={chat} receiver={receiver} />
-              </button>
-            ))}
-          </div>
-        ) : (
-          // Empty state
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No chat history found</p>
-          </div>
-        )}
-      </div>
+      <ChatSearch isSearching={isSearching} setIsSearching={setIsSearching} setReceiver={setReceiver} />
+
+      {!isSearching && (
+        <div className="h-[calc(100dvh-192px)] overflow-y-auto mt-8">
+          {chatHistoryLoading ? (
+            // Show skeleton loaders
+            <div>
+              {[...Array(5)].map((_, index) => (
+                <ChatCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : chatHistory?.data?.length > 0 ? (
+            // Show chat cards
+            <div>
+              {chatHistory.data.map((chat) => (
+                <button
+                  key={chat.user_id}
+                  onClick={() => {
+                    setReceiver(chat);
+                    setShowChatPanel(true);
+                  }}
+                  className="cursor-pointer w-full"
+                >
+                  <ChatCard chat={chat} receiver={receiver} />
+                </button>
+              ))}
+            </div>
+          ) : (
+            // Empty state
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No chat history found</p>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

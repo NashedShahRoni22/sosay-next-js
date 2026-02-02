@@ -5,7 +5,7 @@ import { useAppContext } from "@/context/context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Paperclip, X, Download } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Setup Echo to listen to Reverb
@@ -28,14 +28,16 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  //   get message
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory]);
@@ -72,9 +74,11 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         }
 
         const formattedHistory = messages.map((msg) => ({
-          text: msg.message,
+          text: typeof msg.message === 'string' ? msg.message : (msg.message?.message || 'Message'),
           sender: msg.sender_id == userInfo.id ? "Me" : "Them",
           timestamp: msg.created_at,
+          isFile: msg.is_file === 1 || msg.is_file === true,
+          fileUrl: msg.is_file ? (typeof msg.message === 'string' ? msg.message : msg.message?.message || null) : null,
         }));
 
         setChatHistory(formattedHistory);
@@ -92,9 +96,16 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
 
     channel.listen(".message.sent", (e) => {
       console.log("Real-time Message received:", e);
+      const messageText = typeof e.message === 'string' ? e.message : (e.message?.message || 'Message');
       setChatHistory((prev) => [
         ...prev,
-        { text: e.message, sender: "Them", timestamp: new Date() },
+        {
+          text: messageText,
+          sender: "Them",
+          timestamp: new Date(),
+          isFile: e.is_file === 1 || e.is_file === true,
+          fileUrl: e.is_file ? messageText : null,
+        },
       ]);
     });
 
@@ -104,46 +115,114 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
     };
   }, [accessToken, userInfo, receiver]);
 
-  // send Message
-  const sendMessage = async () => {
-    if (!message.trim() || !accessToken) return;
+  // Handle file selection
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
 
-    const optimisticMessage = {
-      text: message,
-      sender: "Me",
-      timestamp: new Date(),
-    };
-    setChatHistory((prev) => [...prev, optimisticMessage]);
+  // Remove selected file
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Get file name from URL
+  const getFileNameFromUrl = (url) => {
+    try {
+      const urlParts = url.split("/");
+      return urlParts[urlParts.length - 1];
+    } catch {
+      return "file";
+    }
+  };
+
+  // send Message (text or file)
+  const sendMessage = async () => {
+    if ((!message.trim() && !selectedFile) || !accessToken || isSending) return;
+
+    setIsSending(true);
 
     try {
-      const response = await fetch("https://api.sosay.org/api/v1/chat/send", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      let requestBody;
+      let headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+
+      // If there's a file, use FormData
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("receiver_id", receiver?.user_id);
+        formData.append("file", selectedFile);
+        formData.append("is_file", "1");
+        if (message.trim()) {
+          formData.append("message", message);
+        }
+
+        requestBody = formData;
+        // Don't set Content-Type for FormData - browser will set it with boundary
+      } else {
+        // Regular text message
+        headers["Content-Type"] = "application/json";
+        requestBody = JSON.stringify({
           receiver_id: receiver?.user_id,
           message: message,
-        }),
-      });
-
-      if (response) {
-        queryClient.invalidateQueries({
-          queryKey: [`/chat/inbox`],
+          is_file: 0,
         });
       }
 
-      if (!response.ok) {
+      // Optimistic update
+      const optimisticMessage = {
+        text: selectedFile ? selectedFile.name : message,
+        sender: "Me",
+        timestamp: new Date(),
+        isFile: !!selectedFile,
+        fileUrl: selectedFile ? URL.createObjectURL(selectedFile) : null,
+      };
+      setChatHistory((prev) => [...prev, optimisticMessage]);
+
+      const response = await fetch("https://api.sosay.org/api/v1/chat/send", {
+        method: "POST",
+        headers: headers,
+        body: requestBody,
+      });
+
+      if (response.ok) {
+        queryClient.invalidateQueries({
+          queryKey: [`/chat/inbox`],
+        });
+
+        // Get the actual file URL from response if it's a file
+        if (selectedFile) {
+          const responseData = await response.json();
+          const fileUrl = responseData?.data?.message;
+          
+          // Update the optimistic message with the real URL
+          if (fileUrl) {
+            setChatHistory((prev) =>
+              prev.map((msg, idx) =>
+                idx === prev.length - 1 ? { ...msg, text: fileUrl, fileUrl } : msg
+              )
+            );
+          }
+        }
+
+        setMessage("");
+        removeSelectedFile();
+      } else {
         throw new Error("Failed to send message");
       }
-
-      setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);
       // Remove optimistic message on error
-      setChatHistory((prev) => prev.filter((msg) => msg !== optimisticMessage));
+      setChatHistory((prev) => prev.slice(0, -1));
       alert("Failed to send message");
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -213,7 +292,28 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
                         : "bg-muted text-foreground rounded-bl-sm"
                     }`}
                   >
-                    <p className="text-sm break-words">{msg.text}</p>
+                    {msg.isFile ? (
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="h-4 w-4" />
+                        <a
+                          href={msg.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm underline break-all hover:opacity-80"
+                        >
+                          {getFileNameFromUrl(msg.fileUrl || msg.text)}
+                        </a>
+                        <a
+                          href={msg.fileUrl}
+                          download
+                          className="hover:opacity-80"
+                        >
+                          <Download className="h-4 w-4" />
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-sm break-words">{msg.text}</p>
+                    )}
                   </div>
                 </div>
               ))
@@ -223,24 +323,72 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
 
           {/* Message Input */}
           <div className="border-t p-4 bg-card lg:rounded-b-xl">
+            {/* File Preview */}
+            {selectedFile && (
+              <div className="mb-2 p-2 bg-muted rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Paperclip className="h-4 w-4" />
+                  <span className="text-sm truncate max-w-[200px]">
+                    {selectedFile.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    ({(selectedFile.size / 1024).toFixed(2)} KB)
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={removeSelectedFile}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
             <div className="flex gap-2">
+              {/* File Upload Button */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx,.txt"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSending}
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+
+              {/* Text Input */}
               <Input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type a message..."
+                placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message..."}
                 className="flex-1"
                 onKeyDown={(e) =>
                   e.key === "Enter" && !e.shiftKey && sendMessage()
                 }
+                disabled={isSending}
               />
+
+              {/* Send Button */}
               <Button
                 onClick={sendMessage}
                 size="icon"
-                disabled={!message.trim()}
+                disabled={(!message.trim() && !selectedFile) || isSending}
                 className="bg-secondary"
               >
-                <Send className="h-4 w-4" />
+                {isSending ? (
+                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>

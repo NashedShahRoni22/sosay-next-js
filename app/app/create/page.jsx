@@ -151,7 +151,7 @@ export default function AddPostPage() {
 
       {/* Image Preview */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 mt-2 max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 max-h-96 overflow-y-auto">
           {images.map((image, index) => (
             <div
               key={index}
