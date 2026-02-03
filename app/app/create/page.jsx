@@ -79,7 +79,7 @@ export default function AddPostPage() {
       return await postWithToken(
         "/feed_management/private/posts",
         formData,
-        accessToken
+        accessToken,
       );
     },
     onSuccess: (data) => {
@@ -131,116 +131,122 @@ export default function AddPostPage() {
   const currentVisibility = visibilityOptions.find((v) => v.id === visibility);
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={userInfo?.user_image} />
-          <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">{userInfo?.name?.[0]}</AvatarFallback>
-        </Avatar>
-        <div>
-          <h2 className="font-semibold text-lg">Create Post</h2>
-          <p className="text-sm text-muted-foreground">
-            Share something with your community
-          </p>
-        </div>
-      </div>
-
-      {/* Editor */}
-      <EditorContent editor={editor} />
-
-      {/* Image Preview */}
-      {images.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 max-h-96 overflow-y-auto">
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className="relative group rounded-lg overflow-hidden"
-            >
-              <img
-                src={URL.createObjectURL(image)}
-                className="w-full h-40 object-cover"
-              />
-              <button
-                className="cursor-pointer absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                onClick={() => removeImage(index)}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Interests */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Select labels</p>
-        <div className="flex gap-2 flex-wrap">
-          {interests?.map((interest) => (
-            <Badge
-              key={interest.id}
-              variant={
-                selectedInterests.includes(interest.id) ? "default" : "outline"
-              }
-              className="cursor-pointer py-1.5 px-4 "
-              onClick={() => handleInterestClick(interest.id)}
-            >
-              {interest.name}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer Actions */}
-      <div className="flex justify-between items-center pt-4 border-t">
+    <section className="p-4">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in mt-14 md:mt-8">
+        {/* Header */}
         <div className="flex items-center gap-3">
-          {/* Image Upload */}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            id="imageUploadInput"
-            onChange={handleImageChange}
-            className="hidden"
-          />
-          <label
-            htmlFor="imageUploadInput"
-            className="cursor-pointer size-10 rounded-full border flex justify-center items-center hover:shadow"
-          >
-            <Image className="h-5 w-5" />
-          </label>
-
-          {/* Visibility */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="cursor-pointer rounded-full px-4 py-1.5 border flex items-center hover:shadow">
-                <Globe className="h-5 w-5 mr-2" />
-                {currentVisibility.label}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="">
-              {visibilityOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.id}
-                  onClick={() => setVisibility(option.id)}
-                  className="cursor-pointer"
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={userInfo?.user_image} />
+            <AvatarFallback className="capitalize bg-gradient-to-br from-secondary to-purple-600 text-white text-sm font-semibold">
+              {userInfo?.name?.[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="font-semibold text-lg">Create Post</h2>
+            <p className="text-sm text-muted-foreground">
+              Share something with your community
+            </p>
+          </div>
         </div>
 
-        {/* Submit */}
-        <Button
-          onClick={handleAddPost}
-          disabled={isLoading}
-          className="px-6 cursor-pointer bg-secondary/90 hover:bg-secondary"
-        >
-          {isLoading ? "Creating Post" : "Create Post"}
-        </Button>
+        {/* Editor */}
+        <EditorContent editor={editor} />
+
+        {/* Image Preview */}
+        {images.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 max-h-96 overflow-y-auto">
+            {images.map((image, index) => (
+              <div
+                key={index}
+                className="relative group rounded-lg overflow-hidden"
+              >
+                <img
+                  src={URL.createObjectURL(image)}
+                  className="w-full h-40 object-cover"
+                />
+                <button
+                  className="cursor-pointer absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                  onClick={() => removeImage(index)}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Interests */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Select labels</p>
+          <div className="flex gap-2 flex-wrap">
+            {interests?.map((interest) => (
+              <Badge
+                key={interest.id}
+                variant={
+                  selectedInterests.includes(interest.id)
+                    ? "default"
+                    : "outline"
+                }
+                className="cursor-pointer py-1.5 px-4 "
+                onClick={() => handleInterestClick(interest.id)}
+              >
+                {interest.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex items-center gap-3">
+            {/* Image Upload */}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              id="imageUploadInput"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="imageUploadInput"
+              className="cursor-pointer size-10 rounded-full border flex justify-center items-center hover:shadow"
+            >
+              <Image className="h-5 w-5" />
+            </label>
+
+            {/* Visibility */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="cursor-pointer rounded-full px-4 py-1.5 border flex items-center hover:shadow">
+                  <Globe className="h-5 w-5 mr-2" />
+                  {currentVisibility.label}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="">
+                {visibilityOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.id}
+                    onClick={() => setVisibility(option.id)}
+                    className="cursor-pointer"
+                  >
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Submit */}
+          <Button
+            onClick={handleAddPost}
+            disabled={isLoading}
+            className="px-6 cursor-pointer bg-secondary/90 hover:bg-secondary"
+          >
+            {isLoading ? "Creating Post" : "Create Post"}
+          </Button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

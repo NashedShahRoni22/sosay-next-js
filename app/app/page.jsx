@@ -15,7 +15,7 @@ export default function FeedPage() {
     queryFn: fetchWithToken,
     enabled: !!accessToken,
   });
-  if (isLoading) return <PostCardSkeletonList />;
+  if (isLoading) return <div className="p-4"><PostCardSkeletonList /></div> ;
   if (error)
     return (
       <p className="text-red-400 text-center mt-10">Failed to load feed</p>
@@ -24,7 +24,7 @@ export default function FeedPage() {
   const posts = data?.data || [];
 
   return (
-    <main className="max-w-2xl mx-auto space-y-4">
+    <main className="max-w-2xl mx-auto space-y-4 mt-14 md:mt-8 p-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Feed</h1>
         <p className="text-gray-600">

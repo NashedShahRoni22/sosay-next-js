@@ -243,7 +243,7 @@ export default function ProfilePage() {
     updateCoverPictureMutation.isPending;
 
   return (
-    <section className="max-w-2xl mx-auto space-y-6 mt-8">
+    <section className="max-w-2xl mx-auto space-y-6 px-4 mt-14 md:mt-0">
       {/* Cover Picture */}
       <div className="relative">
         <Image

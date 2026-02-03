@@ -234,7 +234,7 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
 // Main Friends Page Component
 export default function FriendsPage() {
   return (
-    <section className="max-w-2xl mx-auto">
+    <section className="max-w-2xl mx-auto mt-14 md:mt-8 p-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Friends</h1>
         <p className="text-gray-600">
@@ -245,7 +245,7 @@ export default function FriendsPage() {
       <Tabs defaultValue="suggested" className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-6">
           <TabsTrigger className="cursor-pointer" value="suggested">Suggested</TabsTrigger>
-          <TabsTrigger className="cursor-pointer" value="friends">My Friends</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="friends">Friends</TabsTrigger>
           <TabsTrigger className="cursor-pointer" value="requests">Requests</TabsTrigger>
           <TabsTrigger className="cursor-pointer" value="sent">Sent</TabsTrigger>
         </TabsList>

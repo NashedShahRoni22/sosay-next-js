@@ -8,7 +8,7 @@ export default function page() {
   const [showChatPanel, setShowChatPanel] = useState(false);
   
   return (
-    <section className="relative lg:grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <section className="relative lg:grid lg:grid-cols-2 gap-8 mt-14 md:mt-8 max-w-4xl mx-auto p-4">
       {/* responsive desktop panel  */}
       <ChatHistory
         setReceiver={setReceiver}
