@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Globe, Image, X, Loader2 } from "lucide-react";
+import { Globe, Image, X, Loader2, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -182,7 +182,7 @@ export default function UpdatePostPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in mt-14">
+    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6 space-y-6 animate-fade-in mt-14 relative">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-12 w-12">
@@ -320,9 +320,9 @@ export default function UpdatePostPage() {
             variant="outline"
             onClick={() => router.back()}
             disabled={isLoading}
-            className="cursor-pointer"
+            className="cursor-pointer absolute top-2 right-2 hover:bg-red-500 hover:text-white size-8 rounded-full transition"                  
           >
-            Cancel
+            <X/>
           </Button>
           <Button
             onClick={handleUpdatePost}

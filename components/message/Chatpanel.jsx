@@ -5,10 +5,116 @@ import { useAppContext } from "@/context/context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Paperclip, X, Download } from "lucide-react";
+import { ArrowLeft, Send, Paperclip, X, Download, Smile } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Setup Echo to listen to Reverb
+import { EMOJI_CATEGORIES, ALL_EMOJIS } from "./Emojidata";
+
+// ─── EmojiPicker Component ─────────────────────────────────────────────────
+function EmojiPicker({ onSelect, onClose, pickerRef }) {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState(0);
+  const scrollRef = useRef(null);
+
+  // Filtered results — every typed word must appear at the start of some keyword word
+  const filtered = search.trim()
+    ? (() => {
+        const terms = search.trim().toLowerCase().split(/\s+/);
+        return ALL_EMOJIS.filter(({ keywords }) =>
+          terms.every((term) =>
+            keywords.split(/\s+/).some((word) => word.startsWith(term))
+          )
+        );
+      })()
+    : null;
+
+  // Scroll category into view
+  const scrollToCategory = (idx) => {
+    setActiveCategory(idx);
+    const el = scrollRef.current?.querySelector(`[data-cat="${idx}"]`);
+    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+
+  return (
+    <div
+      ref={pickerRef}
+      className="absolute bottom-full mb-2 left-0 w-80 bg-card border rounded-xl shadow-lg z-50 flex flex-col"
+      style={{ maxHeight: "360px" }}
+    >
+      {/* Search */}
+      <div className="p-2 border-b">
+        <input
+          autoFocus
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search emoji…"
+          className="w-full px-3 py-1.5 text-sm rounded-lg border bg-muted focus:outline-none focus:ring-2 focus:ring-secondary"
+        />
+      </div>
+
+      {/* Category Tabs */}
+      {!search.trim() && (
+        <div className="flex gap-1 px-2 pt-2 pb-1 overflow-x-auto">
+          {EMOJI_CATEGORIES.map((cat, i) => (
+            <button
+              key={cat.name}
+              onClick={() => scrollToCategory(i)}
+              className={`text-lg flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md transition-colors
+                ${activeCategory === i ? "bg-secondary" : "hover:bg-muted"}`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Emoji Grid */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-2">
+        {filtered ? (
+          // Search results
+          filtered.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-6">No emoji found</p>
+          ) : (
+          <div className="grid grid-cols-10 gap-0.5">
+            {filtered.map(({ emoji }, i) => (
+              <button
+                key={i}
+                onClick={() => onSelect(emoji)}
+                className="text-xl w-7 h-7 flex items-center justify-center rounded hover:bg-muted transition-colors"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          )
+        ) : (
+          // Categorised view
+          EMOJI_CATEGORIES.map((cat, catIdx) => (
+            <div key={cat.name} data-cat={catIdx}>
+              <p className="text-xs font-semibold text-muted-foreground px-1 py-1 sticky top-0 bg-card">
+                {cat.name}
+              </p>
+              <div className="grid grid-cols-10 gap-0.5">
+                {cat.emojis.map((emoji, i) => (
+                  <button
+                    key={i}
+                    onClick={() => onSelect(emoji)}
+                    className="text-xl w-7 h-7 flex items-center justify-center rounded hover:bg-muted transition-colors"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Echo Setup ────────────────────────────────────────────────────────────
 if (typeof window !== "undefined") {
   window.Pusher = Pusher;
 }
@@ -23,6 +129,7 @@ const echo = new Echo({
   enabledTransports: ["ws", "wss"],
 });
 
+// ─── Chatpanel ─────────────────────────────────────────────────────────────
 export default function Chatpanel({ receiver, setShowChatPanel }) {
   const { accessToken, userInfo } = useAppContext();
   const [message, setMessage] = useState("");
@@ -30,9 +137,37 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSending, setIsSending] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const inputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
+  const emojiButtonRef = useRef(null);
   const queryClient = useQueryClient();
+
+  // ── Close picker on outside click ──────────────────────────────────────
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        showEmojiPicker &&
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(e.target) &&
+        emojiButtonRef.current &&
+        !emojiButtonRef.current.contains(e.target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmojiPicker]);
+
+  // ── Insert emoji at cursor position ────────────────────────────────────
+  const handleEmojiSelect = (emoji) => {
+    setMessage((prev) => prev + emoji);
+    // Keep focus on the input after selecting
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +180,6 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
   useEffect(() => {
     if (!accessToken || !userInfo?.id) return;
 
-    // Load old messages from DB
     const fetchHistory = async () => {
       try {
         setIsLoading(true);
@@ -74,11 +208,13 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         }
 
         const formattedHistory = messages.map((msg) => ({
-          text: typeof msg.message === 'string' ? msg.message : (msg.message?.message || 'Message'),
+          text: typeof msg.message === "string" ? msg.message : (msg.message?.message || "Message"),
           sender: msg.sender_id == userInfo.id ? "Me" : "Them",
           timestamp: msg.created_at,
           isFile: msg.is_file === 1 || msg.is_file === true,
-          fileUrl: msg.is_file ? (typeof msg.message === 'string' ? msg.message : msg.message?.message || null) : null,
+          fileUrl: msg.is_file
+            ? (typeof msg.message === "string" ? msg.message : msg.message?.message || null)
+            : null,
         }));
 
         setChatHistory(formattedHistory);
@@ -91,12 +227,11 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
 
     fetchHistory();
 
-    // Listen for new real-time messages
     const channel = echo.channel(`chat.${userInfo.id}`);
 
     channel.listen(".message.sent", (e) => {
       console.log("Real-time Message received:", e);
-      const messageText = typeof e.message === 'string' ? e.message : (e.message?.message || 'Message');
+      const messageText = typeof e.message === "string" ? e.message : (e.message?.message || "Message");
       setChatHistory((prev) => [
         ...prev,
         {
@@ -115,23 +250,16 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
     };
   }, [accessToken, userInfo, receiver]);
 
-  // Handle file selection
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
+    if (file) setSelectedFile(file);
   };
 
-  // Remove selected file
   const removeSelectedFile = () => {
     setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Get file name from URL
   const getFileNameFromUrl = (url) => {
     try {
       const urlParts = url.split("/");
@@ -141,32 +269,23 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
     }
   };
 
-  // send Message (text or file)
   const sendMessage = async () => {
     if ((!message.trim() && !selectedFile) || !accessToken || isSending) return;
-
     setIsSending(true);
+    setShowEmojiPicker(false);
 
     try {
       let requestBody;
-      let headers = {
-        Authorization: `Bearer ${accessToken}`,
-      };
+      let headers = { Authorization: `Bearer ${accessToken}` };
 
-      // If there's a file, use FormData
       if (selectedFile) {
         const formData = new FormData();
         formData.append("receiver_id", receiver?.user_id);
         formData.append("file", selectedFile);
         formData.append("is_file", "1");
-        if (message.trim()) {
-          formData.append("message", message);
-        }
-
+        if (message.trim()) formData.append("message", message);
         requestBody = formData;
-        // Don't set Content-Type for FormData - browser will set it with boundary
       } else {
-        // Regular text message
         headers["Content-Type"] = "application/json";
         requestBody = JSON.stringify({
           receiver_id: receiver?.user_id,
@@ -175,7 +294,6 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         });
       }
 
-      // Optimistic update
       const optimisticMessage = {
         text: selectedFile ? selectedFile.name : message,
         sender: "Me",
@@ -192,16 +310,11 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
       });
 
       if (response.ok) {
-        queryClient.invalidateQueries({
-          queryKey: [`/chat/inbox`],
-        });
+        queryClient.invalidateQueries({ queryKey: [`/chat/inbox`] });
 
-        // Get the actual file URL from response if it's a file
         if (selectedFile) {
           const responseData = await response.json();
           const fileUrl = responseData?.data?.message;
-          
-          // Update the optimistic message with the real URL
           if (fileUrl) {
             setChatHistory((prev) =>
               prev.map((msg, idx) =>
@@ -218,7 +331,6 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Remove optimistic message on error
       setChatHistory((prev) => prev.slice(0, -1));
       alert("Failed to send message");
     } finally {
@@ -226,14 +338,8 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
     }
   };
 
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const getInitials = (name) =>
+    name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <section className="w-full h-full">
@@ -241,10 +347,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         <div className="flex flex-col h-full lg:h-[calc(100dvh-90px)] bg-card shadow-sm lg:rounded-xl">
           {/* Chat Header */}
           <div className="border-b px-4 py-3 flex items-center gap-3 bg-card lg:rounded-t-xl">
-            <button
-              className="lg:hidden"
-              onClick={() => setShowChatPanel(false)}
-            >
+            <button className="lg:hidden" onClick={() => setShowChatPanel(false)}>
               <ArrowLeft className="text-gray-400" />
             </button>
             <Avatar className="h-10 w-10">
@@ -275,9 +378,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
               </div>
             ) : chatHistory.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-muted-foreground">
-                  No messages yet. Start the conversation!
-                </p>
+                <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
               </div>
             ) : (
               chatHistory.map((msg, index) => (
@@ -303,11 +404,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
                         >
                           {getFileNameFromUrl(msg.fileUrl || msg.text)}
                         </a>
-                        <a
-                          href={msg.fileUrl}
-                          download
-                          className="hover:opacity-80"
-                        >
+                        <a href={msg.fileUrl} download className="hover:opacity-80">
                           <Download className="h-4 w-4" />
                         </a>
                       </div>
@@ -328,26 +425,28 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
               <div className="mb-2 p-2 bg-muted rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Paperclip className="h-4 w-4" />
-                  <span className="text-sm truncate max-w-[200px]">
-                    {selectedFile.name}
-                  </span>
+                  <span className="text-sm truncate max-w-[200px]">{selectedFile.name}</span>
                   <span className="text-xs text-muted-foreground">
                     ({(selectedFile.size / 1024).toFixed(2)} KB)
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={removeSelectedFile}
-                >
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={removeSelectedFile}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             )}
 
-            <div className="flex gap-2">
-              {/* File Upload Button */}
+            <div className="flex gap-2 relative">
+              {/* Emoji Picker Popup */}
+              {showEmojiPicker && (
+                <EmojiPicker
+                  pickerRef={emojiPickerRef}
+                  onSelect={handleEmojiSelect}
+                  onClose={() => setShowEmojiPicker(false)}
+                />
+              )}
+
+              {/* File Upload */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -364,16 +463,27 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
                 <Paperclip className="h-4 w-4" />
               </Button>
 
+              {/* Emoji Toggle Button */}
+              <Button
+                ref={emojiButtonRef}
+                variant="outline"
+                size="icon"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                disabled={isSending}
+                className={showEmojiPicker ? "bg-muted" : ""}
+              >
+                <Smile className="h-4 w-4" />
+              </Button>
+
               {/* Text Input */}
               <Input
+                ref={inputRef}
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message..."}
+                placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message…"}
                 className="flex-1"
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !e.shiftKey && sendMessage()
-                }
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
                 disabled={isSending}
               />
 
@@ -395,9 +505,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
         </div>
       ) : (
         <div className="flex flex-1 items-center justify-center h-[80vh] bg-background rounded-xl shadow-sm">
-          <p className="text-muted-foreground">
-            Select a chat to start messaging
-          </p>
+          <p className="text-muted-foreground">Select a chat to start messaging</p>
         </div>
       )}
     </section>
