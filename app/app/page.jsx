@@ -24,10 +24,19 @@ export default function FeedPage() {
   const posts = data?.data || [];
 
   return (
-    <main className="max-w-2xl mx-auto space-y-4 mt-14">
-      {posts.map((post, i) => (
-        <PostCard key={i} post={post} />
-      ))}
+    <main className="max-w-2xl mx-auto space-y-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Feed</h1>
+        <p className="text-gray-600">
+          Latest insights and updates from your connections.
+        </p>
+      </div>
+
+      <div>
+        {posts.map((post, i) => (
+          <PostCard key={i} post={post} />
+        ))}
+      </div>
     </main>
   );
 }

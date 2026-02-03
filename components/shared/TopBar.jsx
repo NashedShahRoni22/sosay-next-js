@@ -34,15 +34,15 @@ export default function TopBar() {
 
   return (
     <section className={clsx(
-      "flex justify-between items-center px-5 py-2 border-b border-gray-200 bg-white text-gray-700 fixed top-0 z-40 w-full"
+      "flex justify-between items-center text-gray-700 fixed top-0 z-40 w-full bg-white md:bg-transparent"
     )}>
       {/* brand logo  */}
-      <div className="md:w-64">
+      <div className="md:w-64 px-5 py-2 bg-white">
         <p className="font-bold text-2xl lg:text-4xl text-secondary">SoSay</p>
       </div>
 
       {/* middle menus  */}
-      <div className="hidden md:flex flex-1 ">
+      {/* <div className="hidden md:flex flex-1 ">
         <div className="min-w-full xl:min-w-2xl mx-auto flex justify-around gap-5">
           {middleItems.map((item) => {
             const Icon = item.icon;
@@ -62,10 +62,10 @@ export default function TopBar() {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       {/* right menus  */}
-      <div className="flex md:hidden xl:flex justify-around gap-5 xl:w-72">
+      <div className="px-5 py-2 flex md:hidden justify-around gap-5">
         {endItems.map((item) => {
           const Icon = item.icon;
           return (

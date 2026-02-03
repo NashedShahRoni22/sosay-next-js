@@ -504,7 +504,7 @@ export default function Chatpanel({ receiver, setShowChatPanel }) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center h-[80vh] bg-background rounded-xl shadow-sm">
+        <div className="flex flex-1 items-center justify-center h-full lg:h-[calc(100dvh-90px)] bg-card rounded-xl shadow-sm">
           <p className="text-muted-foreground">Select a chat to start messaging</p>
         </div>
       )}

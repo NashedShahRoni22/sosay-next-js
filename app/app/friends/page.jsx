@@ -24,7 +24,7 @@ const UserCardSkeleton = () => (
 );
 
 const UserCardSkeletonList = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
     {[...Array(6)].map((_, i) => (
       <UserCardSkeleton key={i} />
     ))}
@@ -216,7 +216,7 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
       {users.map((user) => (
         <UserCard
           key={user.id}
@@ -234,7 +234,7 @@ const FriendsTabContent = ({ endpoint, type, title }) => {
 // Main Friends Page Component
 export default function FriendsPage() {
   return (
-    <section className="max-w-2xl mx-auto p-6 mt-14">
+    <section className="max-w-2xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Friends</h1>
         <p className="text-gray-600">
