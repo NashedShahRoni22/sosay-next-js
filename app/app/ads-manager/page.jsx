@@ -60,12 +60,12 @@ export default function AddManagerPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* My Campaigns Tab */}
         <TabsContent value="campaigns">
           <MyCampaignsList
             accessToken={accessToken}
             campaigns={campaigns}
             isLoading={campaignsLoading}
+            countries={countries}
           />
         </TabsContent>
 

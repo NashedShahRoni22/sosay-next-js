@@ -16,6 +16,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import MyReelsTab from "@/components/reels/MyReelsTab";
 import MyContentTab from "@/components/contents/MyContentTab";
 import UserShop from "@/components/shop/UserShop";
+import ReelsPage from "../reels/ReelsPage";
+import ContentPage from "../content/ContentPage";
+import ProfilePhotos from "@/components/profile/ProfilePhotos";
+import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified } =
@@ -45,13 +49,19 @@ export default function ProfilePage() {
       name: "Posts",
     },
     {
+      name: "Photos",
+    },
+    {
+      name: "Lifestyle",
+    },
+    {
       name: "Reels",
     },
     {
       name: "Contents",
     },
     {
-      name: "Products",
+      name: "Listings",
     },
   ];
 
@@ -282,7 +292,7 @@ export default function ProfilePage() {
       <div className="relative">
         <Image
           src={userInfo?.user_cover_image || defaultCover}
-          className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover"
+          className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover object-top"
           alt="Cover Image"
           height={1000}
           width={1000}
@@ -397,21 +407,25 @@ export default function ProfilePage() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === "Posts" && <ProfilePost />}
+            {activeTab === "Photos" && <ProfilePhotos />}
+            {activeTab === "Lifestyle" && <ProfileLifestyle />}
             {activeTab === "Reels" && (
-              <MyReelsTab
-                accessToken={accessToken}
-                onReelClick={() => {}}
-                onUploadClick={() => {}}
-              />
+              // <MyReelsTab
+              //   accessToken={accessToken}
+              //   onReelClick={() => {}}
+              //   onUploadClick={() => {}}
+              // />
+              <ReelsPage />
             )}
             {activeTab === "Contents" && (
-              <MyContentTab
-                accessToken={accessToken}
-                onContentClick={() => {}}
-                onUploadClick={() => {}}
-              />
+              // <MyContentTab
+              //   accessToken={accessToken}
+              //   onContentClick={() => {}}
+              //   onUploadClick={() => {}}
+              // />
+              <ContentPage />
             )}
-            {activeTab === "Products" && <UserShop />}
+            {activeTab === "Listings" && <UserShop />}
           </motion.div>
         </AnimatePresence>
       </div>

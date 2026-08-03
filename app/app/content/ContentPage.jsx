@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Play, Users, LayoutDashboard, Tv, Star } from "lucide-react";
+import {
+  Upload,
+  Play,
+  Users,
+  LayoutDashboard,
+  Tv,
+  Star,
+  LayoutDashboardIcon,
+} from "lucide-react";
 import ContentTab from "@/components/contents/ContentTab";
 import MyContentTab from "@/components/contents/MyContentTab";
 import FansTab from "@/components/contents/FansTab";
@@ -73,8 +81,8 @@ export default function ContentPage() {
             value="fans"
             className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100 cursor-pointer"
           >
-            <Users className="h-4 w-4" />
-            <span>Fans</span>
+            <LayoutDashboardIcon className="h-4 w-4" />
+            <span>Dashboard</span>
           </TabsTrigger>
           <TabsTrigger
             value="my-creators"

@@ -465,31 +465,35 @@ export default function ShopDetailView() {
                 )}
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={item.user?.profile_picture} />
-                  <AvatarFallback className="text-sm bg-secondary/10 text-secondary capitalize">
-                    {item.user?.name?.[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">
-                    {item.user?.name}
-                  </p>
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <Link
+                  href={`/app/profile/${item?.user?.user_id}`}
+                  className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                >
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={item.user?.profile_picture} />
+                    <AvatarFallback className="text-sm bg-secondary/10 text-secondary capitalize">
+                      {item.user?.name?.[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">
+                      {item.user?.name}
+                    </p>
                     <p className="text-xs text-gray-400">Seller</p>
-                    {shopUrl && (
-                      <Link
-                        href={shopUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs px-2 py-1 rounded-xl text-white bg-secondary"
-                      >
-                        Visit Store
-                      </Link>
-                    )}
                   </div>
-                </div>
+                </Link>
+
+                {shopUrl && (
+                  <Link
+                    href={shopUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-3 py-1.5 rounded-full text-secondary border border-secondary hover:bg-secondary hover:text-white transition-colors font-medium shrink-0"
+                  >
+                    Visit Store
+                  </Link>
+                )}
               </div>
 
               {accessToken ? (

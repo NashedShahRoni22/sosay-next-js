@@ -18,6 +18,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import UserProfileReels from "@/components/profile/UserProfileReels";
 import UserProfileContents from "@/components/profile/UserProfileContents";
 import UserProfileProducts from "@/components/profile/UserProfileProducts";
+import UserProfilePhotos from "@/components/profile/UserProfilePhotos";
+import UserProfileLifestyle from "@/components/profile/UserProfileLifestyle";
 
 function ProfilePicture({ src, onClick }) {
   const [isLoading, setIsLoading] = useState(Boolean(src));
@@ -71,9 +73,15 @@ export default function ProfilePage() {
 
   const Tabs = [
     { name: "Posts" },
+    {
+      name: "Photos",
+    },
+    {
+      name: "Lifestyle",
+    },
     { name: "Reels" },
     { name: "Contents" },
-    { name: "Products" },
+    { name: "Listings" },
   ];
 
   // Fetch profile data
@@ -199,7 +207,7 @@ export default function ProfilePage() {
           >
             <Image
               src={profileData.profile_cover_picture}
-              className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover"
+              className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover object-top"
               alt="Cover Image"
               height={1000}
               width={1000}
@@ -336,9 +344,11 @@ export default function ProfilePage() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === "Posts" && <UserProfilePost id={id} />}
+            {activeTab === "Photos" && <UserProfilePhotos id={id} />}
+            {activeTab === "Lifestyle" && <UserProfileLifestyle id={id} />}
             {activeTab === "Reels" && <UserProfileReels id={id} />}
             {activeTab === "Contents" && <UserProfileContents id={id} />}
-            {activeTab === "Products" && <UserProfileProducts id={id} />}
+            {activeTab === "Listings" && <UserProfileProducts id={id} />}
           </motion.div>
         </AnimatePresence>
       </div>

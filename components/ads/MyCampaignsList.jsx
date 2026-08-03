@@ -8,12 +8,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, TrendingUp, CreditCard } from "lucide-react";
+import { Zap, TrendingUp, CreditCard, Edit2 } from "lucide-react";
 import CampaignSkeleton from "./CampaignSkeleton";
 import PaymentModal from "./PaymentModal";
+import EditCampaignModal from "./EditCampaignModal";
 
-export default function MyCampaignsList({ campaigns, isLoading, accessToken }) {
+export default function MyCampaignsList({ campaigns, isLoading, accessToken, countries }) {
   const [payingCampaign, setPayingCampaign] = useState(null);
+  const [editingCampaign, setEditingCampaign] = useState(null);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -115,16 +117,27 @@ export default function MyCampaignsList({ campaigns, isLoading, accessToken }) {
                     </CardDescription>
                   </div>
 
-                  {/* Pay Now button — only for pending campaigns */}
+                  {/* Pay Now and Edit buttons — only for pending campaigns */}
                   {campaign.status === "pending" && (
-                    <Button
-                      size="sm"
-                      onClick={() => setPayingCampaign(campaign)}
-                      className="flex-shrink-0 bg-secondary hover:bg-secondary/90 gap-1.5"
-                    >
-                      <CreditCard className="h-4 w-4" />
-                      Pay Now
-                    </Button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingCampaign(campaign)}
+                        className="gap-1.5"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setPayingCampaign(campaign)}
+                        className="bg-secondary hover:bg-secondary/90 gap-1.5"
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        Pay Now
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardHeader>
@@ -238,6 +251,15 @@ export default function MyCampaignsList({ campaigns, isLoading, accessToken }) {
           onClose={() => setPayingCampaign(null)}
         />
       )}
+
+      {/* Edit modal */}
+      <EditCampaignModal
+        campaign={editingCampaign}
+        accessToken={accessToken}
+        countries={countries}
+        open={!!editingCampaign}
+        onClose={() => setEditingCampaign(null)}
+      />
     </>
   );
 }

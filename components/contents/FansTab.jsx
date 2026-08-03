@@ -149,9 +149,8 @@ export default function FansTab({ accessToken, userInfo }) {
           <div className="absolute top-4 right-4 z-20">
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur border border-gray-200/50 text-gray-700 rounded-full hover:bg-white transition-colors shadow-sm text-sm font-medium dark:bg-gray-900/80 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+                <button className="flex items-center gap-2 p-2 bg-white/90 backdrop-blur border border-gray-200/50 text-gray-700 rounded-full hover:bg-white transition-colors shadow-sm text-sm font-medium dark:bg-gray-900/80 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
                   <Pencil className="w-4 h-4" />
-                  Edit Dashboard
                 </button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">

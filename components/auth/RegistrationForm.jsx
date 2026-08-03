@@ -298,7 +298,7 @@ export default function RegistrationForm() {
               Already have an account?{" "}
               <Link
                 href="/"
-                className="text-destructive font-semibold hover:text-destructive/80 transition-colors"
+                className="text-secondary font-semibold hover:text-secondary/80 transition-colors"
               >
                 Login
               </Link>
@@ -308,7 +308,7 @@ export default function RegistrationForm() {
               Explore the smart features of{" "}
               <Link
                 href="/home"
-                className="text-destructive font-semibold hover:text-destructive/80 transition-colors"
+                className="text-secondary font-semibold hover:text-secondary/80 transition-colors"
               >
                 Sosay
               </Link>

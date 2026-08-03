@@ -133,7 +133,9 @@ export default function LoginForm() {
           {/* divider */}
           <div className="flex items-center gap-3 mb-6">
             <span className="h-px flex-1 bg-gray-100" />
-            <span className="text-xs text-gray-300 font-medium">Sosay</span>
+            <Link href={"/home"} className="text-destructive font-semibold">
+              Sosay
+            </Link>
             <span className="h-px flex-1 bg-gray-100" />
           </div>
 
@@ -255,7 +257,7 @@ export default function LoginForm() {
               Don't have an account?{" "}
               <Link
                 href="/register"
-                className="text-destructive font-semibold hover:text-destructive/80 transition-colors"
+                className="text-secondary font-semibold hover:text-secondary/80 transition-colors"
               >
                 Sign up
               </Link>
@@ -265,7 +267,7 @@ export default function LoginForm() {
               Explore the smart features of{" "}
               <Link
                 href="/home"
-                className="text-destructive font-semibold hover:text-destructive/80 transition-colors"
+                className="text-secondary font-semibold hover:text-secondary/80 transition-colors"
               >
                 Sosay
               </Link>

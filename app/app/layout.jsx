@@ -25,7 +25,9 @@ export default function Layout({ children }) {
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
-            <span className="text-sm font-medium text-secondary">{uploadProgress}%</span>
+            <span className="text-sm font-medium text-secondary">
+              {uploadProgress}%
+            </span>
           </div>
         </div>
       )}
