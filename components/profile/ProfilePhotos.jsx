@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import FullscreenGallery from "@/components/shared/FullscreenGallery";
 
 export default function ProfilePhotos() {
   const { accessToken } = useAppContext();
@@ -15,6 +16,8 @@ export default function ProfilePhotos() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [caption, setCaption] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Fetch photos
   const { data, isLoading, error } = useQuery({
@@ -75,12 +78,21 @@ export default function ProfilePhotos() {
     e.preventDefault();
     if (!selectedFile) return;
 
-    const fd = new FormData();
     fd.append("image", selectedFile);
     if (caption.trim()) {
       fd.append("caption", caption.trim());
     }
     uploadMutation.mutate(fd);
+  };
+
+  const lightboxSlides = photos.map((photo) => ({
+    src: photo.image_path,
+    alt: photo.caption || "Photo",
+  }));
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
   };
 
   return (
@@ -128,10 +140,12 @@ export default function ProfilePhotos() {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {photos.map((photo) => (
-            <div
+          {photos.map((photo, index) => (
+            <button
+              type="button"
               key={photo.id}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm"
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm cursor-zoom-in text-left"
             >
               <Image
                 src={photo.image_path}
@@ -146,7 +160,7 @@ export default function ProfilePhotos() {
                   </p>
                 </div>
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -217,6 +231,13 @@ export default function ProfilePhotos() {
           </div>
         </div>
       )}
+
+      <FullscreenGallery
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        slides={lightboxSlides}
+        initialIndex={lightboxIndex}
+      />
     </div>
   );
 }

@@ -1,69 +1,58 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Image from "next/image";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+import FullscreenGallery from "@/components/shared/FullscreenGallery";
 
-function FullscreenGallery({ open, onOpenChange, slides, initialIndex }) {
-  const [loadedSlides, setLoadedSlides] = useState({});
-  const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
+const VideoItem = ({ item, containerClassName, videoClassName }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
 
   return (
-    <Lightbox
-      key={`${open}-${initialIndex}-${slides.length}`}
-      open={open}
-      close={() => onOpenChange(false)}
-      slides={slides}
-      index={currentIndex}
-      carousel={{ preload: 6 }}
-      controller={{ closeOnBackdropClick: true }}
-      on={{
-        view: ({ index }) => setCurrentIndex(index),
-      }}
-      render={{
-        slide: ({ slide }) => {
-          const slideKey = slide.src;
-          const isLoaded = loadedSlides[slideKey];
-
-          return (
-            <div className="relative h-full w-full flex items-center justify-center bg-black">
-              {!isLoaded && <div className="absolute inset-0 animate-pulse bg-white/10" />}
-              <div className="relative h-full w-full">
-                <Image
-                  src={slide.src}
-                  alt={slide.alt || "Gallery image"}
-                  fill
-                  sizes="100vw"
-                  className="object-contain"
-                  priority
-                  onLoad={() =>
-                    setLoadedSlides((prev) => ({ ...prev, [slideKey]: true }))
-                  }
-                  onError={() =>
-                    setLoadedSlides((prev) => ({ ...prev, [slideKey]: true }))
-                  }
-                />
-              </div>
-              {slides.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-black/60 text-white text-xs px-3 py-1 rounded-full pointer-events-none">
-                  {currentIndex + 1} / {slides.length}
-                </div>
-              )}
+    <div className={`relative flex items-center justify-center bg-black ${containerClassName}`}>
+      {!isPlaying && item.thumbnail && (
+        <div 
+          className="absolute inset-0 z-10 cursor-pointer group"
+          onClick={handlePlay}
+        >
+          <Image 
+            src={item.thumbnail} 
+            alt="Video thumbnail" 
+            fill 
+            className="object-contain" 
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
+          />
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-colors group-hover:bg-black/30">
+            <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm transition-transform group-hover:scale-110">
+              <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
             </div>
-          );
-        },
-      }}
-      styles={{
-        container: { backgroundColor: "rgba(0,0,0,0.95)" },
-      }}
-    />
+          </div>
+        </div>
+      )}
+      <video
+        ref={videoRef}
+        src={item.file_name}
+        poster={item.thumbnail}
+        controls={isPlaying || !item.thumbnail}
+        className={videoClassName}
+        playsInline
+        onPlay={() => setIsPlaying(true)}
+      />
+    </div>
   );
-}
+};
+
 
 export default function MediaSwiper({ media, postId }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -91,7 +80,7 @@ export default function MediaSwiper({ media, postId }) {
     const item = media[0];
     return (
       <>
-        <div className="w-full mb-4 -mx-3 sm:mx-0">
+        <div className="mb-4 -mx-3 sm:mx-0 w-[calc(100%+1.5rem)] sm:w-full">
           {item.file_type === 1 ? (
             <button
               type="button"
@@ -108,11 +97,10 @@ export default function MediaSwiper({ media, postId }) {
               />
             </button>
           ) : (
-            <video
-              src={item.file_name}
-              controls
-              className="w-full h-auto max-h-[280px] xs:max-h-[320px] sm:max-h-[380px] md:max-h-[450px] lg:max-h-[500px] sm:rounded-xl bg-black"
-              playsInline
+            <VideoItem
+              item={item}
+              containerClassName="w-full sm:rounded-xl overflow-hidden"
+              videoClassName="w-full h-auto max-h-[280px] xs:max-h-[320px] sm:max-h-[380px] md:max-h-[450px] lg:max-h-[500px]"
             />
           )}
         </div>
@@ -129,7 +117,7 @@ export default function MediaSwiper({ media, postId }) {
 
   // Multiple media - use Swiper
   return (
-    <div className="relative mb-4 -mx-3 sm:mx-0 overflow-hidden sm:rounded-xl group bg-gray-100">
+    <div className="relative mb-4 -mx-3 sm:mx-0 w-[calc(100%+1.5rem)] sm:w-full overflow-hidden sm:rounded-xl group bg-gray-100">
       <Swiper
         modules={[Navigation, Pagination]}
         navigation={{
@@ -166,14 +154,11 @@ export default function MediaSwiper({ media, postId }) {
                 />
               </button>
             ) : (
-              <div className="w-full h-[280px] xs:h-[320px] sm:h-[380px] md:h-[450px] lg:h-[500px] flex items-center justify-center bg-black">
-                <video
-                  src={item.file_name}
-                  controls
-                  className="w-full h-full max-h-full object-contain"
-                  playsInline
-                />
-              </div>
+              <VideoItem
+                item={item}
+                containerClassName="w-full h-[280px] xs:h-[320px] sm:h-[380px] md:h-[450px] lg:h-[500px]"
+                videoClassName="w-full h-full max-h-full object-contain"
+              />
             )}
           </SwiperSlide>
         ))}

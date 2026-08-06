@@ -4,9 +4,12 @@ import { fetchWithToken } from "@/helpers/api";
 import { useQuery } from "@tanstack/react-query";
 import { ImagePlus, Loader2 } from "lucide-react";
 import Image from "next/image";
+import FullscreenGallery from "@/components/shared/FullscreenGallery";
 
 export default function UserProfileLifestyle({ id }) {
   const { accessToken } = useAppContext();
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [lightboxIndex, setLightboxIndex] = React.useState(0);
 
   // Fetch lifestyle photos
   const { data, isLoading, error } = useQuery({
@@ -30,6 +33,16 @@ export default function UserProfileLifestyle({ id }) {
     acc[cat.id] = cat.name;
     return acc;
   }, {});
+
+  const lightboxSlides = photos.map((photo) => ({
+    src: photo.image_path,
+    alt: categoryMap[photo.media_category_id] || "Lifestyle photo",
+  }));
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   return (
     <div className="mt-4">
@@ -55,10 +68,12 @@ export default function UserProfileLifestyle({ id }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {photos.map((photo) => (
-            <div
+          {photos.map((photo, index) => (
+            <button
+              type="button"
               key={photo.id}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm"
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm cursor-zoom-in text-left"
             >
               <Image
                 src={photo.image_path}
@@ -74,10 +89,17 @@ export default function UserProfileLifestyle({ id }) {
                     </p>
                   </div>
                 )}
-            </div>
+            </button>
           ))}
         </div>
       )}
+
+      <FullscreenGallery
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        slides={lightboxSlides}
+        initialIndex={lightboxIndex}
+      />
     </div>
   );
 }

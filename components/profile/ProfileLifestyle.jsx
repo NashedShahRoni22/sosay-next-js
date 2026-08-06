@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import FullscreenGallery from "@/components/shared/FullscreenGallery";
 
 export default function ProfileLifestyle() {
   const { accessToken } = useAppContext();
@@ -15,6 +16,8 @@ export default function ProfileLifestyle() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [categoryId, setCategoryId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Fetch lifestyle photos
   const { data, isLoading, error } = useQuery({
@@ -105,6 +108,16 @@ export default function ProfileLifestyle() {
     return acc;
   }, {});
 
+  const lightboxSlides = photos.map((photo) => ({
+    src: photo.image_path,
+    alt: categoryMap[photo.media_category_id] || "Lifestyle photo",
+  }));
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between mb-6">
@@ -150,10 +163,12 @@ export default function ProfileLifestyle() {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {photos.map((photo) => (
-            <div
+          {photos.map((photo, index) => (
+            <button
+              type="button"
               key={photo.id}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm"
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm cursor-zoom-in text-left"
             >
               <Image
                 src={photo.image_path}
@@ -169,7 +184,7 @@ export default function ProfileLifestyle() {
                     </p>
                   </div>
                 )}
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -252,6 +267,13 @@ export default function ProfileLifestyle() {
           </div>
         </div>
       )}
+
+      <FullscreenGallery
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        slides={lightboxSlides}
+        initialIndex={lightboxIndex}
+      />
     </div>
   );
 }

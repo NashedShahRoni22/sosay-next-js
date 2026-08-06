@@ -26,12 +26,12 @@ export default function CreateButtons() {
       action: () => setIsPreferenceModalOpen(true),
       label: "Preferences",
       icon: Tags,
-    }
+    },
   ];
 
   return (
     <>
-      <div className="hidden lg:block fixed bottom-5 right-5 z-50 group">
+      <div className="fixed bottom-15 lg:bottom-5 right-5 z-50 group">
         <div className="flex flex-col items-end gap-2">
           <div className="pointer-events-none translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
             <div className="flex flex-col items-end gap-2">
@@ -70,7 +70,7 @@ export default function CreateButtons() {
             aria-label="Open create actions"
             className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl outline-none transition-transform duration-200 hover:scale-105"
           >
-            <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/30 animate-ping group-hover:animate-none" />
+            <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/30" />
             <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
               <Plus className="h-6 w-6" />
             </span>

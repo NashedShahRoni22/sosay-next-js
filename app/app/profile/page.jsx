@@ -372,7 +372,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs button here */}
-      <div className="flex gap-2 items-center mt-6 overflow-x-auto p-1 bg-gray-50/50 rounded-xl max-w-fit mx-auto md:mx-0">
+      <div className="flex flex-wrap gap-2 items-center mt-6 p-1 bg-gray-50/50">
         {Tabs.map((tab) => {
           const isActive = activeTab === tab.name;
           return (
