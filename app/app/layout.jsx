@@ -42,7 +42,7 @@ export default function Layout({ children }) {
         </main>
       </div>
       <BottomBar onUserClick={() => setIsSidebarOpen((v) => !v)} />
-      {pathname !== "/app/message" && <CreateButtons />}
+      {pathname !== "/app/message" && pathname !== "/app/create" && <CreateButtons />}
     </PrivateRoute>
   );
 }

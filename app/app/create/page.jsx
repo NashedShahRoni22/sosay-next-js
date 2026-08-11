@@ -141,7 +141,11 @@ export default function AddPostPage() {
     const description = editor?.getHTML();
 
     // Validation
-    if (!description || description.trim() === "<p></p>" || description.trim() === "") {
+    if (
+      !description ||
+      description.trim() === "<p></p>" ||
+      description.trim() === ""
+    ) {
       toast.error("Please enter some content for your post");
       return;
     }

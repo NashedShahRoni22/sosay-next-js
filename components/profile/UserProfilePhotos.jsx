@@ -10,6 +10,7 @@ export default function UserProfilePhotos({ id }) {
   const { accessToken } = useAppContext();
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [lightboxIndex, setLightboxIndex] = React.useState(0);
+  const [readMorePhoto, setReadMorePhoto] = React.useState(null);
 
   // Fetch user photos
   const { data, isLoading, error } = useQuery({
@@ -31,7 +32,7 @@ export default function UserProfilePhotos({ id }) {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 pb-10">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-800">Photos</h2>
       </div>
@@ -53,28 +54,40 @@ export default function UserProfilePhotos({ id }) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           {photos.map((photo, index) => (
-            <button
-              type="button"
+            <div
               key={photo.id}
-              onClick={() => openLightbox(index)}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm cursor-zoom-in text-left"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col"
             >
-              <Image
-                src={photo.image_path}
-                alt={photo.caption || "User photo"}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-              />
+              <button
+                type="button"
+                onClick={() => openLightbox(index)}
+                className="group relative aspect-square w-full bg-gray-100 cursor-zoom-in overflow-hidden block"
+              >
+                <Image
+                  src={photo.image_path}
+                  alt={photo.caption || "User photo"}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </button>
               {photo.caption && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-white text-sm line-clamp-2 font-medium">
+                <div className="p-3 flex flex-col gap-1">
+                  <p className="text-gray-700 text-sm line-clamp-2 whitespace-pre-wrap">
                     {photo.caption}
                   </p>
+                  {photo.caption.length > 70 && (
+                    <button
+                      onClick={() => setReadMorePhoto(photo)}
+                      className="text-xs text-secondary font-medium text-left hover:underline mt-1"
+                    >
+                      Read more
+                    </button>
+                  )}
                 </div>
               )}
-            </button>
+            </div>
           ))}
         </div>
       )}
@@ -85,6 +98,53 @@ export default function UserProfilePhotos({ id }) {
         slides={lightboxSlides}
         initialIndex={lightboxIndex}
       />
+
+      {/* Read More Modal */}
+      {readMorePhoto && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+              <h3 className="font-bold text-gray-800 text-lg">Photo Details</h3>
+              <button
+                type="button"
+                onClick={() => setReadMorePhoto(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto p-5 flex flex-col gap-4">
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                <Image
+                  src={readMorePhoto.image_path}
+                  alt={readMorePhoto.caption || "Photo"}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">
+                  {readMorePhoto.caption}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

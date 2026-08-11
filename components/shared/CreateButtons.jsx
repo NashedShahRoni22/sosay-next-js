@@ -68,11 +68,11 @@ export default function CreateButtons() {
           <button
             type="button"
             aria-label="Open create actions"
-            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl outline-none transition-transform duration-200 hover:scale-105"
+            className="relative flex h-10 md:h-14 w-10 md:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl outline-none transition-transform duration-200 hover:scale-105"
           >
             <span className="pointer-events-none absolute inset-0 rounded-full bg-primary/30" />
-            <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
-              <Plus className="h-6 w-6" />
+            <span className="relative flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-full bg-secondary">
+              <Plus className="h-4 md:h-6 w-4 md:w-6" />
             </span>
           </button>
         </div>

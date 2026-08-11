@@ -8,7 +8,13 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Minus, Plus, X, Loader2 } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Loader2,
+  UserRoundX,
+  UserRoundPlus,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Chatpanel from "@/components/message/Chatpanel";
 import UserProfilePost from "@/components/profile/UserProfilePost";
@@ -194,7 +200,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <section className="mx-auto mt-14 max-w-2xl space-y-6 px-3 sm:px-4 md:mt-0">
+    <section className="mx-auto mt-14 max-w-3xl space-y-6 px-3 sm:px-4 md:mt-0">
       {/* Cover Picture */}
       <div className="relative">
         {profileDataLoading ? (
@@ -258,7 +264,7 @@ export default function ProfilePage() {
                       {unfriendMutation.isPending ? (
                         <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                       ) : (
-                        <Minus className="mr-1 h-4 w-4" />
+                        <UserRoundX className="mr-1 h-4 w-4" />
                       )}
                       Unfriend
                     </Button>
@@ -286,7 +292,7 @@ export default function ProfilePage() {
                       {addFriendMutation.isPending ? (
                         <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                       ) : (
-                        <Plus className="mr-1 h-4 w-4" />
+                        <UserRoundPlus className="mr-1 h-4 w-4" />
                       )}
                       Add Friend
                     </Button>

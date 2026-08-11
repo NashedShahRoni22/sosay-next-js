@@ -4,7 +4,7 @@ import { useAppContext } from "@/context/context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchWithToken, postWithToken, putWithToken } from "@/helpers/api";
 import toast from "react-hot-toast";
-import { Camera } from "lucide-react";
+import { Camera, Share2 } from "lucide-react";
 import ProfilePost from "@/components/profile/ProfilePost";
 import ProfilePictureDialog from "@/components/profile/ProfilePictureDialog";
 import CoverPictureDialog from "@/components/profile/CoverPictureDialog";
@@ -280,6 +280,26 @@ export default function ProfilePage() {
     setNewCoverImage(null);
   };
 
+  const handleShareProfile = async () => {
+    const profileUrl = `${window.location.origin}/app/profile/${userInfo.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${userInfo.name}'s Profile`,
+          url: profileUrl,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          navigator.clipboard.writeText(profileUrl);
+          toast.success("Profile link copied to clipboard!");
+        }
+      }
+    } else {
+      navigator.clipboard.writeText(profileUrl);
+      toast.success("Profile link copied to clipboard!");
+    }
+  };
+
   const isLoading =
     addProfilePictureMutation.isPending ||
     updateProfilePictureMutation.isPending ||
@@ -287,7 +307,7 @@ export default function ProfilePage() {
     updateCoverPictureMutation.isPending;
 
   return (
-    <section className="max-w-2xl mx-auto space-y-6 px-4 mt-14 md:mt-0">
+    <section className="max-w-3xl mx-auto space-y-6 px-4 mt-14 md:mt-0">
       {/* Cover Picture */}
       <div className="relative">
         <Image
@@ -326,46 +346,58 @@ export default function ProfilePage() {
               <Camera className="text-xl" />
             </button>
           </div>
-          <div className="text-center md:text-left md:mb-4">
-            <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
-              {userInfo?.name}
-            </h1>
+          <div className="text-center md:text-left md:mb-4 flex-1">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
+                  {userInfo?.name}
+                </h1>
 
-            {/* counts and badge  */}
-            <div className="flex items-center gap-4 mt-2 text-sm">
-              <p>
-                {" "}
-                <span className="font-semibold">
-                  {" "}
-                  {statsData?.posts_count | 0}{" "}
-                </span>{" "}
-                Posts
-              </p>
-              <p>
-                {" "}
-                <span className="font-semibold">
-                  {" "}
-                  {statsData?.friends_count || 0}{" "}
-                </span>{" "}
-                Friends
-              </p>
+                {/* counts and badge  */}
+                <div className="flex items-center justify-center md:justify-start gap-4 mt-2 text-sm">
+                  <p>
+                    {" "}
+                    <span className="font-semibold">
+                      {" "}
+                      {statsData?.posts_count | 0}{" "}
+                    </span>{" "}
+                    Posts
+                  </p>
+                  <p>
+                    {" "}
+                    <span className="font-semibold">
+                      {" "}
+                      {statsData?.friends_count || 0}{" "}
+                    </span>{" "}
+                    Friends
+                  </p>
 
-              {/* check user verification status and show badge or link accordingly  */}
-              {isUserVerified ? (
-                <Link
-                  href={"/app/verified-infromations"}
-                  className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full bg-secondary text-white"
-                >
-                  Verified
-                </Link>
-              ) : (
-                <Link
-                  href="/app/verify"
-                  className="px-4 py-1 text-xs rounded-full bg-destructive text-white"
-                >
-                  Not Verified
-                </Link>
-              )}
+                  {/* check user verification status and show badge or link accordingly  */}
+                  {isUserVerified ? (
+                    <Link
+                      href={"/app/verified-infromations"}
+                      className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full bg-secondary text-white"
+                    >
+                      Verified
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/app/verify"
+                      className="px-4 py-1 text-xs rounded-full bg-destructive text-white"
+                    >
+                      Not Verified
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleShareProfile}
+                className="mx-auto md:mx-0 flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors text-sm font-medium shadow-sm border border-gray-200"
+              >
+                <Share2 className="w-4 h-4" />
+                Share Profile
+              </button>
             </div>
           </div>
         </div>
@@ -410,20 +442,20 @@ export default function ProfilePage() {
             {activeTab === "Photos" && <ProfilePhotos />}
             {activeTab === "Lifestyle" && <ProfileLifestyle />}
             {activeTab === "Reels" && (
-              // <MyReelsTab
-              //   accessToken={accessToken}
-              //   onReelClick={() => {}}
-              //   onUploadClick={() => {}}
-              // />
-              <ReelsPage />
+              <MyReelsTab
+                accessToken={accessToken}
+                onReelClick={() => {}}
+                onUploadClick={() => {}}
+              />
+              // <ReelsPage />
             )}
             {activeTab === "Contents" && (
-              // <MyContentTab
-              //   accessToken={accessToken}
-              //   onContentClick={() => {}}
-              //   onUploadClick={() => {}}
-              // />
-              <ContentPage />
+              <MyContentTab
+                accessToken={accessToken}
+                onContentClick={() => {}}
+                onUploadClick={() => {}}
+              />
+              // <ContentPage />
             )}
             {activeTab === "Listings" && <UserShop />}
           </motion.div>

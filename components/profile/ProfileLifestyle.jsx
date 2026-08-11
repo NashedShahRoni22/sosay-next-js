@@ -15,9 +15,11 @@ export default function ProfileLifestyle() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [categoryId, setCategoryId] = useState("");
+  const [caption, setCaption] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [readMorePhoto, setReadMorePhoto] = useState(null);
 
   // Fetch lifestyle photos
   const { data, isLoading, error } = useQuery({
@@ -50,7 +52,7 @@ export default function ProfileLifestyle() {
       if (res.status || res.status_code === 200 || res.status_code === 201) {
         toast.success(res.message || "Photo uploaded successfully!");
         queryClient.invalidateQueries({
-          queryKey: ["/user/profile/lifestyle/photos", accessToken],
+          queryKey: ["/user/profile/lifestyle/get-photos", accessToken],
         });
         handleCloseModal();
       } else {
@@ -85,6 +87,7 @@ export default function ProfileLifestyle() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setCategoryId("");
+    setCaption("");
   };
 
   const handleUpload = (e) => {
@@ -98,6 +101,9 @@ export default function ProfileLifestyle() {
     const fd = new FormData();
     fd.append("image", selectedFile);
     fd.append("media_category_id", categoryId);
+    if (caption.trim()) {
+      fd.append("caption", caption.trim());
+    }
 
     uploadMutation.mutate(fd);
   };
@@ -110,7 +116,10 @@ export default function ProfileLifestyle() {
 
   const lightboxSlides = photos.map((photo) => ({
     src: photo.image_path,
-    alt: categoryMap[photo.media_category_id] || "Lifestyle photo",
+    alt:
+      photo.caption ||
+      categoryMap[photo.media_category_id] ||
+      "Lifestyle photo",
   }));
 
   const openLightbox = (index) => {
@@ -119,7 +128,7 @@ export default function ProfileLifestyle() {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 pb-10">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-gray-800">Lifestyle</h2>
         <button
@@ -162,29 +171,57 @@ export default function ProfileLifestyle() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           {photos.map((photo, index) => (
-            <button
-              type="button"
+            <div
               key={photo.id}
-              onClick={() => openLightbox(index)}
-              className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm cursor-zoom-in text-left"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col"
             >
-              <Image
-                src={photo.image_path}
-                alt={categoryMap[photo.media_category_id] || "Lifestyle photo"}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              {photo.media_category_id &&
-                categoryMap[photo.media_category_id] && (
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-white text-sm line-clamp-2 font-medium">
-                      {categoryMap[photo.media_category_id]}
+              <button
+                type="button"
+                onClick={() => openLightbox(index)}
+                className="group relative aspect-square w-full bg-gray-100 cursor-zoom-in overflow-hidden block"
+              >
+                <Image
+                  src={photo.image_path}
+                  alt={
+                    categoryMap[photo.media_category_id] || "Lifestyle photo"
+                  }
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </button>
+              {(photo.caption ||
+                (photo.media_category_id &&
+                  categoryMap[photo.media_category_id])) && (
+                <div className="p-3 flex flex-col gap-1">
+                  {photo.media_category_id &&
+                    categoryMap[photo.media_category_id] && (
+                      <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
+                        {categoryMap[photo.media_category_id]}
+                      </span>
+                    )}
+                  {photo.caption && (
+                    <p className="text-gray-700 text-sm line-clamp-2 whitespace-pre-wrap">
+                      {photo.caption}
                     </p>
-                  </div>
-                )}
-            </button>
+                  )}
+                  {photo.caption && photo.caption.length > 70 && (
+                    <button
+                      onClick={() =>
+                        setReadMorePhoto({
+                          ...photo,
+                          categoryName: categoryMap[photo.media_category_id],
+                        })
+                      }
+                      className="text-xs text-secondary font-medium text-left hover:underline mt-1"
+                    >
+                      Read more
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -192,8 +229,8 @@ export default function ProfileLifestyle() {
       {/* Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
               <h3 className="font-bold text-gray-800 text-lg">
                 Upload Lifestyle Photo
               </h3>
@@ -207,7 +244,10 @@ export default function ProfileLifestyle() {
               </button>
             </div>
 
-            <form onSubmit={handleUpload} className="p-5 flex flex-col gap-5">
+            <form
+              onSubmit={handleUpload}
+              className="p-5 flex flex-col gap-5 overflow-y-auto"
+            >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Category <span className="text-red-500">*</span>
@@ -240,6 +280,20 @@ export default function ProfileLifestyle() {
                   />
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Caption (Optional)
+                </label>
+                <textarea
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  placeholder="Write a caption..."
+                  rows={3}
+                  disabled={uploadMutation.isPending}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none transition-shadow"
+                />
+              </div>
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
@@ -274,6 +328,46 @@ export default function ProfileLifestyle() {
         slides={lightboxSlides}
         initialIndex={lightboxIndex}
       />
+
+      {/* Read More Modal */}
+      {readMorePhoto && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+              <h3 className="font-bold text-gray-800 text-lg">Photo Details</h3>
+              <button
+                type="button"
+                onClick={() => setReadMorePhoto(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto p-5 flex flex-col gap-4">
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                <Image
+                  src={readMorePhoto.image_path}
+                  alt={readMorePhoto.caption || "Photo"}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                {readMorePhoto.categoryName && (
+                  <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
+                    {readMorePhoto.categoryName}
+                  </span>
+                )}
+                {readMorePhoto.caption && (
+                  <p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">
+                    {readMorePhoto.caption}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
