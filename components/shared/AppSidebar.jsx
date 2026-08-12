@@ -41,7 +41,7 @@ export default function AppSidebar({ isOpen, onClose }) {
     { name: "Home", icon: Home, href: "/app" },
     { name: "Create", icon: PlusCircle, href: "/app/create" },
     {
-      name: "Message",
+      name: "Chat",
       icon: MessageCircle,
       href: "/app/message",
       count: totalUnread,

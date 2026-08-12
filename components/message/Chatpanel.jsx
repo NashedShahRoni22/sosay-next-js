@@ -16,6 +16,31 @@ import { fetchWithToken } from "@/helpers/api";
 import Link from "next/link";
 import Image from "next/image";
 
+// ─── Helper: Render Text with Links ──────────────────────────────────────────
+const renderTextWithLinks = (text, isSender) => {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`underline hover:opacity-80 font-medium break-all ${
+            isSender ? "text-white" : "text-blue-600"
+          }`}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 // ─── EmojiPicker Component ─────────────────────────────────────────────────
 function EmojiPicker({ onSelect, onClose, pickerRef }) {
   const [search, setSearch] = useState("");
@@ -595,7 +620,9 @@ export default function Chatpanel({ receiver, setShowChatPanel, whatsapp }) {
                             </div>
                           )
                         ) : (
-                          <p className="text-sm wrap-break-word">{msg.text}</p>
+                          <div className="text-sm break-words whitespace-pre-wrap">
+                            {renderTextWithLinks(msg.text, isSender)}
+                          </div>
                         )}
                       </div>
                     </div>

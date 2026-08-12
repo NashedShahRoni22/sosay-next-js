@@ -22,7 +22,7 @@ import ProfilePhotos from "@/components/profile/ProfilePhotos";
 import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
 
 export default function ProfilePage() {
-  const { userInfo, setUserInfo, accessToken, isUserVerified } =
+  const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
     useAppContext();
 
   const queryClient = useQueryClient();
@@ -388,6 +388,13 @@ export default function ProfilePage() {
                       Not Verified
                     </Link>
                   )}
+
+                  <button
+                    onClick={() => logout()}
+                    className="px-4 py-1 text-xs rounded-full bg-destructive text-white"
+                  >
+                    Log Out
+                  </button>
                 </div>
               </div>
 
