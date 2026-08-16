@@ -4,7 +4,18 @@ import { useAppContext } from "@/context/context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchWithToken, postWithToken, putWithToken } from "@/helpers/api";
 import toast from "react-hot-toast";
-import { Camera, Share2 } from "lucide-react";
+import {
+  Camera,
+  Share2,
+  LayoutGrid,
+  ImageIcon,
+  Coffee,
+  PlaySquare,
+  Clapperboard,
+  ShoppingBag,
+  Users,
+  Star,
+} from "lucide-react";
 import ProfilePost from "@/components/profile/ProfilePost";
 import ProfilePictureDialog from "@/components/profile/ProfilePictureDialog";
 import CoverPictureDialog from "@/components/profile/CoverPictureDialog";
@@ -20,6 +31,8 @@ import ReelsPage from "../reels/ReelsPage";
 import ContentPage from "../content/ContentPage";
 import ProfilePhotos from "@/components/profile/ProfilePhotos";
 import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
+import FansTab from "@/components/contents/FansTab";
+import MyCreatorsTab from "@/components/contents/MyCreatorsTab";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
@@ -45,24 +58,14 @@ export default function ProfilePage() {
 
   // Tabs button here
   const Tabs = [
-    {
-      name: "Posts",
-    },
-    {
-      name: "Photos",
-    },
-    {
-      name: "Lifestyle",
-    },
-    {
-      name: "Reels",
-    },
-    {
-      name: "Contents",
-    },
-    {
-      name: "Listings",
-    },
+    { name: "Posts", icon: LayoutGrid, Component: ProfilePost },
+    { name: "Photos", icon: ImageIcon, Component: ProfilePhotos },
+    { name: "Lifestyle", icon: Coffee, Component: ProfileLifestyle },
+    { name: "Contents", icon: PlaySquare, Component: MyContentTab },
+    { name: "Reels", icon: Clapperboard, Component: MyReelsTab },
+    { name: "Listings", icon: ShoppingBag, Component: UserShop },
+    { name: "Fans", icon: Users, Component: FansTab },
+    { name: "Creators", icon: Star, Component: MyCreatorsTab },
   ];
 
   // Fetch profile pictures
@@ -320,10 +323,9 @@ export default function ProfilePage() {
         <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
           <button
             onClick={handleOpenCoverDialog}
-            className="bg-white text-sm flex items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 rounded-full shadow cursor-pointer hover:bg-gray-50 transition"
+            className="bg-white text-sm flex items-center gap-1.5 p-2 md:p-4 rounded-full shadow cursor-pointer hover:bg-gray-50 transition"
           >
             <Camera className="text-xl" />
-            <span className="hidden md:block">Upload Cover</span>
           </button>
         </div>
       </div>
@@ -341,7 +343,7 @@ export default function ProfilePage() {
             />
             <button
               onClick={handleOpenProfileDialog}
-              className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow cursor-pointer hover:bg-gray-50 transition"
+              className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow cursor-pointer hover:bg-gray-100 transition"
             >
               <Camera className="text-xl" />
             </button>
@@ -400,10 +402,10 @@ export default function ProfilePage() {
 
               <button
                 onClick={handleShareProfile}
-                className="mx-auto md:mx-0 flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors text-sm font-medium shadow-sm border border-gray-200"
+                className="mx-auto md:mx-0 flex items-center justify-center gap-2 px-4 py-1.5 bg-white hover:bg-gray-100 text-gray-800 rounded-full transition-colors text-sm font-medium shadow-sm border border-gray-200"
               >
                 <Share2 className="w-4 h-4" />
-                Share Profile
+                Share
               </button>
             </div>
           </div>
@@ -418,7 +420,7 @@ export default function ProfilePage() {
             <button
               key={tab.name}
               onClick={() => handleTabChange(tab.name)}
-              className={`relative px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap rounded-lg z-10 ${
+              className={`relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap rounded-lg z-10 ${
                 isActive ? "text-primary" : "text-gray-500 hover:text-gray-900"
               }`}
             >
@@ -429,7 +431,8 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              {tab.name}
+              {tab.icon && <tab.icon className="w-4 h-4" />}
+              <span>{tab.name}</span>
             </button>
           );
         })}
@@ -445,26 +448,18 @@ export default function ProfilePage() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === "Posts" && <ProfilePost />}
-            {activeTab === "Photos" && <ProfilePhotos />}
-            {activeTab === "Lifestyle" && <ProfileLifestyle />}
-            {activeTab === "Reels" && (
-              <MyReelsTab
-                accessToken={accessToken}
-                onReelClick={() => {}}
-                onUploadClick={() => {}}
-              />
-              // <ReelsPage />
-            )}
-            {activeTab === "Contents" && (
-              <MyContentTab
-                accessToken={accessToken}
-                onContentClick={() => {}}
-                onUploadClick={() => {}}
-              />
-              // <ContentPage />
-            )}
-            {activeTab === "Listings" && <UserShop />}
+            {(() => {
+              const ActiveComponent = Tabs.find((tab) => tab.name === activeTab)?.Component;
+              return ActiveComponent ? (
+                <ActiveComponent
+                  accessToken={accessToken}
+                  userInfo={userInfo}
+                  onContentClick={() => {}}
+                  onUploadClick={() => {}}
+                  onReelClick={() => {}}
+                />
+              ) : null;
+            })()}
           </motion.div>
         </AnimatePresence>
       </div>

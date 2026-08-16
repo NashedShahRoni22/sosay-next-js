@@ -2,15 +2,18 @@ import React from "react";
 import { useAppContext } from "@/context/context";
 import { fetchWithToken } from "@/helpers/api";
 import { useQuery } from "@tanstack/react-query";
-import { ImagePlus, Loader2 } from "lucide-react";
+import { ImagePlus, Loader2, Lock } from "lucide-react";
 import Image from "next/image";
 import FullscreenGallery from "@/components/shared/FullscreenGallery";
+import MediaPaymentModal from "./MediaPaymentModal";
 
 export default function UserProfileLifestyle({ id }) {
   const { accessToken } = useAppContext();
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [lightboxIndex, setLightboxIndex] = React.useState(0);
   const [readMorePhoto, setReadMorePhoto] = React.useState(null);
+  const [paymentModalOpen, setPaymentModalOpen] = React.useState(false);
+  const [selectedMediaId, setSelectedMediaId] = React.useState(null);
 
   // Fetch lifestyle photos
   const { data, isLoading, error } = useQuery({
@@ -79,17 +82,41 @@ export default function UserProfileLifestyle({ id }) {
             >
               <button
                 type="button"
-                onClick={() => openLightbox(index)}
-                className="group relative aspect-square w-full bg-gray-100 cursor-zoom-in overflow-hidden block"
-              >
-                <Image
-                  src={photo.image_path}
-                  alt={
-                    categoryMap[photo.media_category_id] || "Lifestyle photo"
+                onClick={() => {
+                  if (photo.is_locked && photo.access_type === "distinct_paid") {
+                    setSelectedMediaId(photo.id);
+                    setPaymentModalOpen(true);
+                  } else if (!photo.is_locked) {
+                    openLightbox(index);
                   }
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                }}
+                className={`group relative aspect-square w-full bg-gray-100 overflow-hidden block ${photo.is_locked ? 'cursor-not-allowed' : 'cursor-zoom-in'}`}
+              >
+                {photo.is_locked ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-white transition-all duration-300 group-hover:from-gray-700 group-hover:to-gray-800">
+                    <div className="bg-white/10 p-4 rounded-full mb-4 backdrop-blur-md border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                      <Lock className="w-7 h-7 text-yellow-400" />
+                    </div>
+                    {photo.access_type === "distinct_paid" ? (
+                      <span className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all">
+                        Unlock for ${photo.price || "0.00"}
+                      </span>
+                    ) : (
+                      <span className="px-5 py-2 bg-white/5 text-gray-300 text-sm font-semibold rounded-full border border-white/10 backdrop-blur-sm">
+                        Subscriber Only
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <Image
+                    src={photo.image_path}
+                    alt={
+                      categoryMap[photo.media_category_id] || "Lifestyle photo"
+                    }
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                )}
               </button>
               {(photo.caption ||
                 (photo.media_category_id &&
@@ -131,6 +158,15 @@ export default function UserProfileLifestyle({ id }) {
         onOpenChange={setLightboxOpen}
         slides={lightboxSlides}
         initialIndex={lightboxIndex}
+      />
+
+      <MediaPaymentModal
+        mediaId={selectedMediaId}
+        mediaType="lifestyle"
+        accessToken={accessToken}
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        onSuccessCallback={() => setPaymentModalOpen(false)}
       />
 
       {/* Read More Modal */}

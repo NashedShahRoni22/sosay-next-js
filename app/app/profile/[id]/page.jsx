@@ -14,6 +14,12 @@ import {
   Loader2,
   UserRoundX,
   UserRoundPlus,
+  LayoutGrid,
+  ImageIcon,
+  Coffee,
+  PlaySquare,
+  Clapperboard,
+  ShoppingBag,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Chatpanel from "@/components/message/Chatpanel";
@@ -78,16 +84,12 @@ export default function ProfilePage() {
   };
 
   const Tabs = [
-    { name: "Posts" },
-    {
-      name: "Photos",
-    },
-    {
-      name: "Lifestyle",
-    },
-    { name: "Reels" },
-    { name: "Contents" },
-    { name: "Listings" },
+    { name: "Posts", icon: LayoutGrid, Component: UserProfilePost },
+    { name: "Photos", icon: ImageIcon, Component: UserProfilePhotos },
+    { name: "Lifestyle", icon: Coffee, Component: UserProfileLifestyle },
+    { name: "Contents", icon: PlaySquare, Component: UserProfileContents },
+    { name: "Reels", icon: Clapperboard, Component: UserProfileReels },
+    { name: "Listings", icon: ShoppingBag, Component: UserProfileProducts },
   ];
 
   // Fetch profile data
@@ -322,7 +324,7 @@ export default function ProfilePage() {
             <button
               key={tab.name}
               onClick={() => handleTabChange(tab.name)}
-              className={`relative px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap rounded-lg z-10 ${
+              className={`relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap rounded-lg z-10 ${
                 isActive ? "text-primary" : "text-gray-500 hover:text-gray-900"
               }`}
             >
@@ -333,7 +335,8 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              {tab.name}
+              {tab.icon && <tab.icon className="w-4 h-4" />}
+              <span>{tab.name}</span>
             </button>
           );
         })}
@@ -349,12 +352,10 @@ export default function ProfilePage() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === "Posts" && <UserProfilePost id={id} />}
-            {activeTab === "Photos" && <UserProfilePhotos id={id} />}
-            {activeTab === "Lifestyle" && <UserProfileLifestyle id={id} />}
-            {activeTab === "Reels" && <UserProfileReels id={id} />}
-            {activeTab === "Contents" && <UserProfileContents id={id} />}
-            {activeTab === "Listings" && <UserProfileProducts id={id} />}
+            {(() => {
+              const ActiveComponent = Tabs.find((tab) => tab.name === activeTab)?.Component;
+              return ActiveComponent ? <ActiveComponent id={id} /> : null;
+            })()}
           </motion.div>
         </AnimatePresence>
       </div>

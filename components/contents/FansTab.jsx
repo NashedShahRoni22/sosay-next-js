@@ -8,11 +8,8 @@ import {
   Users,
   Pencil,
   CheckCircle,
-  CreditCard,
-  Sparkles,
   DollarSign,
   Wallet,
-  ArrowRight,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -311,15 +308,8 @@ export default function FansTab({ accessToken, userInfo }) {
       </div>
 
       {/* Subscribers Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Your Subscribers
-            </h2>
-          </div>
-        </div>
+      <div className="">
+        <h2 className="text-lg font-bold text-gray-800 mb-6">My Subscriber</h2>
 
         {isLoading ? (
           <div className="space-y-3">

@@ -82,13 +82,16 @@ export default function SearchPage() {
   // Cancel Friend Request Mutation
   const cancelRequestMutation = useMutation({
     mutationFn: async (formData) => {
-      const res = await fetch(`${BASE_URL}/friendship/sent-friends-request/cancel`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const res = await fetch(
+        `${BASE_URL}/friendship/sent-friends-request/cancel`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
       return res.json();
     },
     onSuccess: (data) => {
@@ -117,7 +120,7 @@ export default function SearchPage() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       return res.json();
     },
@@ -147,7 +150,7 @@ export default function SearchPage() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       return res.json();
     },
@@ -190,7 +193,7 @@ export default function SearchPage() {
         `${BASE_URL}/search-users?search=${encodeURIComponent(activeSearch)}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
-        }
+        },
       );
       return res.json();
     },
@@ -246,7 +249,9 @@ export default function SearchPage() {
       {/* Header */}
       <div>
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Search Users</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            Search Users
+          </h1>
 
           {/* Search Input */}
           <div className="relative">
@@ -278,13 +283,15 @@ export default function SearchPage() {
         {!activeSearch && (
           <div className="text-center py-16">
             <Search className="h-16 w-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">Start typing to search for users</p>
+            <p className="text-gray-500 text-lg">
+              Start typing to search for users
+            </p>
           </div>
         )}
 
         {/* Loading State */}
         {isLoading && activeSearch && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <UserCardSkleton key={i} />
             ))}
@@ -306,7 +313,7 @@ export default function SearchPage() {
             <p className="text-sm text-gray-600 mb-6">
               Found {users.length} user{users.length !== 1 ? "s" : ""}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {users.map((user) => (
                 <SearchUserCard
                   key={user.id}
@@ -318,7 +325,9 @@ export default function SearchPage() {
                   onRejectRequest={handleRejectRequest}
                   onViewProfile={handleViewProfile}
                   isLoading={loadingState.userId === user.id}
-                  currentAction={loadingState.userId === user.id ? loadingState.action : null}
+                  currentAction={
+                    loadingState.userId === user.id ? loadingState.action : null
+                  }
                 />
               ))}
             </div>

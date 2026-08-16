@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useAppContext } from "@/context/context";
 import { fetchWithToken, postWithToken } from "@/helpers/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, X, Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import FullscreenGallery from "@/components/shared/FullscreenGallery";
@@ -20,6 +20,9 @@ export default function ProfileLifestyle() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [readMorePhoto, setReadMorePhoto] = useState(null);
+  const [accessType, setAccessType] = useState("free");
+  const [price, setPrice] = useState("");
+  const [editingPhoto, setEditingPhoto] = useState(null);
 
   // Fetch lifestyle photos
   const { data, isLoading, error } = useQuery({
@@ -64,6 +67,47 @@ export default function ProfileLifestyle() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, fd }) => {
+      return postWithToken(`/user/profile/lifestyle/photos/${id}`, fd, accessToken);
+    },
+    onSuccess: (res) => {
+      if (res.status || res.status_code === 200 || res.status_code === 201) {
+        toast.success(res.message || "Photo updated successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["/user/profile/lifestyle/get-photos", accessToken],
+        });
+        handleCloseModal();
+      } else {
+        toast.error(res.message || "Failed to update photo.");
+      }
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Failed to update photo.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const fd = new FormData();
+      fd.append("_method", "DELETE");
+      return postWithToken(`/user/profile/lifestyle/photos/${id}`, fd, accessToken);
+    },
+    onSuccess: (res) => {
+      if (res.status || res.status_code === 200) {
+        toast.success(res.message || "Photo deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["/user/profile/lifestyle/get-photos", accessToken],
+        });
+      } else {
+        toast.error(res.message || "Failed to delete photo.");
+      }
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Failed to delete photo.");
+    },
+  });
+
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -88,24 +132,65 @@ export default function ProfileLifestyle() {
     setPreviewUrl(null);
     setCategoryId("");
     setCaption("");
+    setAccessType("free");
+    setPrice("");
+    setEditingPhoto(null);
+  };
+
+  const handleEditClick = (photo) => {
+    setEditingPhoto(photo);
+    setCategoryId(photo.media_category_id || "");
+    setCaption(photo.caption || "");
+    setAccessType(photo.access_type || "free");
+    setPrice(photo.price || "");
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    if (window.confirm("Are you sure you want to delete this photo?")) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const handleUpload = (e) => {
     e.preventDefault();
-    if (!selectedFile) return;
     if (!categoryId) {
       toast.error("Please select a category.");
       return;
     }
 
-    const fd = new FormData();
-    fd.append("image", selectedFile);
-    fd.append("media_category_id", categoryId);
-    if (caption.trim()) {
-      fd.append("caption", caption.trim());
+    if (accessType === "distinct_paid" && !price) {
+      toast.error("Price is required for distinct paid access.");
+      return;
     }
 
-    uploadMutation.mutate(fd);
+    const fd = new FormData();
+    if (editingPhoto) {
+      fd.append("_method", "PUT");
+      fd.append("media_category_id", categoryId);
+      if (caption.trim()) {
+        fd.append("caption", caption.trim());
+      }
+      fd.append("access_type", accessType);
+      if (accessType === "distinct_paid") {
+        fd.append("price", price);
+      }
+      updateMutation.mutate({ id: editingPhoto.id, fd });
+    } else {
+      if (!selectedFile) return;
+      fd.append("image", selectedFile);
+      fd.append("media_category_id", categoryId);
+      if (caption.trim()) {
+        fd.append("caption", caption.trim());
+      }
+      
+      fd.append("access_type", accessType);
+      if (accessType === "distinct_paid") {
+        fd.append("price", price);
+      }
+  
+      uploadMutation.mutate(fd);
+    }
   };
 
   // Create a map for category names to display nicely over photos
@@ -175,8 +260,25 @@ export default function ProfileLifestyle() {
           {photos.map((photo, index) => (
             <div
               key={photo.id}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col relative group"
             >
+              <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={() => handleEditClick(photo)}
+                  className="p-2 bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-sm backdrop-blur-sm transition"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteClick(photo.id)}
+                  disabled={deleteMutation.isPending}
+                  className="p-2 bg-white/90 hover:bg-white text-red-600 rounded-full shadow-sm backdrop-blur-sm transition disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => openLightbox(index)}
@@ -232,12 +334,12 @@ export default function ProfileLifestyle() {
           <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
               <h3 className="font-bold text-gray-800 text-lg">
-                Upload Lifestyle Photo
+                {editingPhoto ? "Edit Lifestyle Photo" : "Upload Lifestyle Photo"}
               </h3>
               <button
                 type="button"
                 onClick={handleCloseModal}
-                disabled={uploadMutation.isPending}
+                disabled={uploadMutation.isPending || updateMutation.isPending}
                 className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -255,7 +357,7 @@ export default function ProfileLifestyle() {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  disabled={uploadMutation.isPending || isLoadingCategories}
+                  disabled={uploadMutation.isPending || updateMutation.isPending || isLoadingCategories}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                   required
                 >
@@ -270,11 +372,22 @@ export default function ProfileLifestyle() {
                 </select>
               </div>
 
-              {previewUrl && (
+              {!editingPhoto && previewUrl && (
                 <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-inner">
                   <Image
                     src={previewUrl}
                     alt="Preview"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              )}
+
+              {editingPhoto && editingPhoto.image_path && (
+                <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-inner">
+                  <Image
+                    src={editingPhoto.image_path}
+                    alt="Current photo"
                     fill
                     className="object-contain"
                   />
@@ -290,16 +403,49 @@ export default function ProfileLifestyle() {
                   onChange={(e) => setCaption(e.target.value)}
                   placeholder="Write a caption..."
                   rows={3}
-                  disabled={uploadMutation.isPending}
+                  disabled={uploadMutation.isPending || updateMutation.isPending}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none transition-shadow"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Access Type
+                </label>
+                <select
+                  value={accessType}
+                  onChange={(e) => setAccessType(e.target.value)}
+                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
+                >
+                  <option value="free">Free</option>
+                  <option value="subscriber_only">Subscriber Only</option>
+                  <option value="distinct_paid">Distinct Paid</option>
+                </select>
+              </div>
+
+              {accessType === "distinct_paid" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Price <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    disabled={uploadMutation.isPending || updateMutation.isPending}
+                    placeholder="Enter price"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
+                    required
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  disabled={uploadMutation.isPending}
+                  disabled={uploadMutation.isPending || updateMutation.isPending}
                   className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                 >
                   Cancel
@@ -307,14 +453,14 @@ export default function ProfileLifestyle() {
                 <button
                   type="submit"
                   disabled={
-                    !selectedFile || !categoryId || uploadMutation.isPending
+                    (!editingPhoto && !selectedFile) || !categoryId || uploadMutation.isPending || updateMutation.isPending
                   }
                   className="px-5 py-2.5 text-sm font-medium text-white bg-secondary rounded-xl hover:bg-secondary/90 transition-colors flex items-center gap-2 disabled:opacity-70 shadow-sm"
                 >
-                  {uploadMutation.isPending && (
+                  {(uploadMutation.isPending || updateMutation.isPending) && (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   )}
-                  Upload
+                  {editingPhoto ? "Save Changes" : "Upload"}
                 </button>
               </div>
             </form>

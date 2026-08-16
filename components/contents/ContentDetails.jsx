@@ -41,7 +41,7 @@ export default function ContentDetails({
 
   // Fetch creator profile
   const creatorId = content?.user?.id;
-  const { data: creatorData, isLoading: isCreatorLoading } = useQuery({
+  const { data: creatorData } = useQuery({
     queryKey: ["/contents/creators", creatorId],
     queryFn: () =>
       fetchWithToken({
