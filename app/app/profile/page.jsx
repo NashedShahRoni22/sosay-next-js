@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   Users,
   Star,
+  Rss,
 } from "lucide-react";
 import ProfilePost from "@/components/profile/ProfilePost";
 import ProfilePictureDialog from "@/components/profile/ProfilePictureDialog";
@@ -33,6 +34,8 @@ import ProfilePhotos from "@/components/profile/ProfilePhotos";
 import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
 import FansTab from "@/components/contents/FansTab";
 import MyCreatorsTab from "@/components/contents/MyCreatorsTab";
+import MyFans from "@/components/contents/MyFans";
+import ContentDashboard from "@/components/contents/ContentDashboard";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
@@ -58,14 +61,15 @@ export default function ProfilePage() {
 
   // Tabs button here
   const Tabs = [
-    { name: "Posts", icon: LayoutGrid, Component: ProfilePost },
-    { name: "Photos", icon: ImageIcon, Component: ProfilePhotos },
-    { name: "Lifestyle", icon: Coffee, Component: ProfileLifestyle },
-    { name: "Contents", icon: PlaySquare, Component: MyContentTab },
-    { name: "Reels", icon: Clapperboard, Component: MyReelsTab },
-    { name: "Listings", icon: ShoppingBag, Component: UserShop },
-    { name: "Fans", icon: Users, Component: FansTab },
-    { name: "Creators", icon: Star, Component: MyCreatorsTab },
+    { name: "Posts", icon: Rss, Component: ProfilePost },
+    { name: "Dashboard", icon: LayoutGrid, Component: ContentDashboard },
+    { name: "My Photos", icon: ImageIcon, Component: ProfilePhotos },
+    { name: "My Lifestyle", icon: Coffee, Component: ProfileLifestyle },
+    { name: "My Contents", icon: PlaySquare, Component: MyContentTab },
+    { name: "My Reels", icon: Clapperboard, Component: MyReelsTab },
+    { name: "My Listings", icon: ShoppingBag, Component: UserShop },
+    { name: "My Fans", icon: Users, Component: MyFans },
+    { name: "My Creators", icon: Star, Component: MyCreatorsTab },
   ];
 
   // Fetch profile pictures
@@ -439,7 +443,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs content here */}
-      <div className="mt-6 min-h-[400px]">
+      <div className="mt-6 min-h-[400px] pb-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -449,7 +453,9 @@ export default function ProfilePage() {
             transition={{ duration: 0.2 }}
           >
             {(() => {
-              const ActiveComponent = Tabs.find((tab) => tab.name === activeTab)?.Component;
+              const ActiveComponent = Tabs.find(
+                (tab) => tab.name === activeTab,
+              )?.Component;
               return ActiveComponent ? (
                 <ActiveComponent
                   accessToken={accessToken}

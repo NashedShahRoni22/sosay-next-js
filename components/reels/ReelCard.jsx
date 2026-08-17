@@ -1,21 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React from "react";
 import Image from "next/image";
 import { Play, Eye } from "lucide-react";
 
 export default function ReelCard({ reel, onView }) {
   const videoSrc = reel?.video_url || "";
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef(null);
-
-  const handlePlay = (e) => {
-    e.stopPropagation();
-    setIsPlaying(true);
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
-  };
 
   return (
     <button
@@ -23,11 +13,8 @@ export default function ReelCard({ reel, onView }) {
       onClick={() => onView?.()}
       className="group relative rounded-xl overflow-hidden bg-black aspect-3/5 cursor-pointer w-full text-left"
     >
-      {!isPlaying && reel?.thumbnail_url && (
-        <div
-          className="absolute inset-0 z-10 cursor-pointer group"
-          onClick={handlePlay}
-        >
+      {reel?.thumbnail_url && (
+        <div className="absolute inset-0 z-10 cursor-pointer group">
           <Image
             src={reel.thumbnail_url}
             alt="Reel thumbnail"
@@ -48,16 +35,11 @@ export default function ReelCard({ reel, onView }) {
       )}
 
       <video
-        ref={videoRef}
         src={videoSrc}
-        poster={reel?.thumbnail_url}
-        controls={isPlaying || !reel?.thumbnail_url}
         className="w-full h-full object-cover"
-        muted={!isPlaying}
+        muted
         playsInline
         preload="metadata"
-        onPlay={() => setIsPlaying(true)}
-        onClick={(e) => isPlaying && e.stopPropagation()}
       />
 
       {/* Stats (bottom left) */}

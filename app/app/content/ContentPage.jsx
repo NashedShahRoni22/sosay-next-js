@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Upload,
-  Play,
-  Users,
-  LayoutDashboard,
   Tv,
+  Film,
+  Clapperboard,
+  Camera,
+  Coffee,
+  LayoutDashboard,
   Star,
-  LayoutDashboardIcon,
+  Users,
+  LayoutGrid,
 } from "lucide-react";
 import ContentTab from "@/components/contents/ContentTab";
 import MyContentTab from "@/components/contents/MyContentTab";
@@ -19,6 +22,11 @@ import MyCreatorsTab from "@/components/contents/MyCreatorsTab";
 import UploadContentDialog from "@/components/contents/UploadContentDialog";
 import ContentDetails from "@/components/contents/ContentDetails";
 import { useAppContext } from "@/context/context";
+import MyReelsTab from "@/components/reels/MyReelsTab";
+import ProfilePhotos from "@/components/profile/ProfilePhotos";
+import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
+import MyFans from "@/components/contents/MyFans";
+import ContentDashboard from "@/components/contents/ContentDashboard";
 
 export default function ContentPage() {
   const { accessToken, userInfo } = useAppContext();
@@ -38,6 +46,104 @@ export default function ContentPage() {
       </section>
     );
   }
+
+  const tabs = [
+    {
+      value: "content",
+      label: "Contents",
+      icon: Tv,
+      colorClass:
+        "data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-100",
+      content: (
+        <ContentTab
+          accessToken={accessToken}
+          onContentClick={setActiveContentId}
+        />
+      ),
+    },
+    {
+      value: "my-content",
+      label: "My Contents",
+      icon: Film,
+      colorClass:
+        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
+      content: (
+        <MyContentTab
+          accessToken={accessToken}
+          onUploadClick={() => setOpenUploadDialog(true)}
+          onContentClick={setActiveContentId}
+        />
+      ),
+    },
+    {
+      value: "my-reels",
+      label: "My Reels",
+      icon: Clapperboard,
+      colorClass:
+        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
+      content: (
+        <MyReelsTab
+          accessToken={accessToken}
+          onUploadClick={() => setOpenUploadDialog(true)}
+          onContentClick={setActiveContentId}
+        />
+      ),
+    },
+    {
+      value: "my-photos",
+      label: "My Photos",
+      icon: Camera,
+      colorClass:
+        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
+      content: (
+        <ProfilePhotos
+          accessToken={accessToken}
+          onUploadClick={() => setOpenUploadDialog(true)}
+          onContentClick={setActiveContentId}
+        />
+      ),
+    },
+    {
+      value: "my-lifestyle",
+      label: "My Lifestyle",
+      icon: Coffee,
+      colorClass:
+        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
+      content: (
+        <ProfileLifestyle
+          accessToken={accessToken}
+          onUploadClick={() => setOpenUploadDialog(true)}
+          onContentClick={setActiveContentId}
+        />
+      ),
+    },
+    {
+      value: "dashboard",
+      label: "Dashboard",
+      icon: LayoutGrid,
+      colorClass:
+        "data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100",
+      content: (
+        <ContentDashboard accessToken={accessToken} userInfo={userInfo} />
+      ),
+    },
+    {
+      value: "fans",
+      label: "My Fans",
+      icon: Users,
+      colorClass:
+        "data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100",
+      content: <MyFans accessToken={accessToken} userInfo={userInfo} />,
+    },
+    {
+      value: "my-creators",
+      label: "My Creators",
+      icon: Star,
+      colorClass:
+        "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900 data-[state=active]:text-yellow-700 dark:data-[state=active]:text-yellow-100",
+      content: <MyCreatorsTab accessToken={accessToken} />,
+    },
+  ];
 
   return (
     <section className="max-w-3xl mx-auto space-y-4 mt-14 md:mt-8 p-4">
@@ -63,58 +169,23 @@ export default function ContentPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="gap-2 bg-transparent p-0 h-auto w-auto flex-wrap mb-6">
-          <TabsTrigger
-            value="content"
-            className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-100 cursor-pointer"
-          >
-            <Tv className="h-4 w-4" />
-            <span>Contents</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="my-content"
-            className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100 cursor-pointer"
-          >
-            <Play className="h-4 w-4" />
-            <span>My Contents</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="fans"
-            className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100 cursor-pointer"
-          >
-            <LayoutDashboardIcon className="h-4 w-4" />
-            <span>Dashboard</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="my-creators"
-            className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900 data-[state=active]:text-yellow-700 dark:data-[state=active]:text-yellow-100 cursor-pointer"
-          >
-            <Star className="h-4 w-4" />
-            <span>My Creators</span>
-          </TabsTrigger>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={`gap-2 rounded-full px-4 py-2 cursor-pointer ${tab.colorClass}`}
+            >
+              <tab.icon className="h-4 w-4" />
+              <span>{tab.label}</span>
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="content" className="space-y-6">
-          <ContentTab
-            accessToken={accessToken}
-            onContentClick={setActiveContentId}
-          />
-        </TabsContent>
-
-        <TabsContent value="my-content" className="space-y-6">
-          <MyContentTab
-            accessToken={accessToken}
-            onUploadClick={() => setOpenUploadDialog(true)}
-            onContentClick={setActiveContentId}
-          />
-        </TabsContent>
-
-        <TabsContent value="fans" className="space-y-6">
-          <FansTab accessToken={accessToken} userInfo={userInfo} />
-        </TabsContent>
-
-        <TabsContent value="my-creators" className="space-y-6">
-          <MyCreatorsTab accessToken={accessToken} />
-        </TabsContent>
+        {tabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="space-y-6">
+            {tab.content}
+          </TabsContent>
+        ))}
       </Tabs>
 
       {/* Upload Dialog */}

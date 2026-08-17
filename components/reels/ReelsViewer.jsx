@@ -343,13 +343,11 @@ export default function ReelsViewer({
                   reelId={slide.reel?.id}
                   comments={slide.reel?.comments || []}
                   initialCount={
-                    slide.reel?.comments_count ??
-                    slide.reel?.comment_count ??
-                    0
+                    slide.reel?.comments_count ?? slide.reel?.comment_count ?? 0
                   }
                   onOpenChange={handleCommentOpenChange}
                 />
-                <button
+                {/* <button
                   type="button"
                   className="bg-black/60 rounded-full p-2.5"
                   aria-label="Share reel"
@@ -362,7 +360,7 @@ export default function ReelsViewer({
                   aria-label="Save reel"
                 >
                   <Bookmark className="h-5 w-5" />
-                </button>
+                </button> */}
               </div>
 
               <div className="absolute bottom-8 left-4 right-20 z-20 text-white">

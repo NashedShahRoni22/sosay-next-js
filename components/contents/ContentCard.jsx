@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Play, Heart, MessageCircle, Crown, MoreVertical, Star, StarOff, Eye, EyeOff, Trash2, Loader2, Lock } from 'lucide-react';
 import {
@@ -10,20 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function ContentCard({ content, onView, onTogglePremium, onToggleActive, onDelete, isDeleting }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef(null);
-
-  const handlePlay = (e) => {
-    e.stopPropagation();
-    if (content.is_premium === 1) {
-      if (onView) onView(e);
-      return;
-    }
-    setIsPlaying(true);
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
-  };
 
   return (
     <div 
@@ -32,11 +18,8 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
     >
       {/* Thumbnail / Video Container - 4:3 aspect ratio */}
       <div className="relative w-full aspect-[4/3] bg-gray-900 rounded-xl overflow-hidden shadow-sm">
-        {!isPlaying && content?.thumbnail_url && (
-          <div
-            className="absolute inset-0 z-10 cursor-pointer group"
-            onClick={handlePlay}
-          >
+        {content?.thumbnail_url && (
+          <div className="absolute inset-0 z-10 cursor-pointer group">
             <Image
               src={content.thumbnail_url}
               alt="Content thumbnail"
@@ -61,15 +44,9 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
         )}
 
         <video
-          ref={videoRef}
           src={content.video_url}
-          poster={content?.thumbnail_url}
-          controls={isPlaying || !content?.thumbnail_url}
           className="w-full h-full object-cover"
-          playsInline
           preload="metadata"
-          onPlay={() => setIsPlaying(true)}
-          onClick={(e) => isPlaying && e.stopPropagation()}
         />
 
         {/* Premium Badge */}

@@ -20,6 +20,7 @@ import {
   PlaySquare,
   Clapperboard,
   ShoppingBag,
+  Rss,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Chatpanel from "@/components/message/Chatpanel";
@@ -84,7 +85,7 @@ export default function ProfilePage() {
   };
 
   const Tabs = [
-    { name: "Posts", icon: LayoutGrid, Component: UserProfilePost },
+    { name: "Posts", icon: Rss, Component: UserProfilePost },
     { name: "Photos", icon: ImageIcon, Component: UserProfilePhotos },
     { name: "Lifestyle", icon: Coffee, Component: UserProfileLifestyle },
     { name: "Contents", icon: PlaySquare, Component: UserProfileContents },
@@ -353,7 +354,9 @@ export default function ProfilePage() {
             transition={{ duration: 0.2 }}
           >
             {(() => {
-              const ActiveComponent = Tabs.find((tab) => tab.name === activeTab)?.Component;
+              const ActiveComponent = Tabs.find(
+                (tab) => tab.name === activeTab,
+              )?.Component;
               return ActiveComponent ? <ActiveComponent id={id} /> : null;
             })()}
           </motion.div>
