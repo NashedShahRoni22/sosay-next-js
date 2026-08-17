@@ -1,5 +1,6 @@
-import React from 'react';
-import { Play, Heart, MessageCircle, Crown, MoreVertical, Star, StarOff, Eye, EyeOff, Trash2, Loader2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import Image from 'next/image';
+import { Play, Heart, MessageCircle, Crown, MoreVertical, Star, StarOff, Eye, EyeOff, Trash2, Loader2, Lock } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +10,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function ContentCard({ content, onView, onTogglePremium, onToggleActive, onDelete, isDeleting }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  const handlePlay = (e) => {
+    e.stopPropagation();
+    if (content.is_premium === 1) {
+      if (onView) onView(e);
+      return;
+    }
+    setIsPlaying(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+
   return (
     <div 
       className="group flex flex-col gap-2 cursor-pointer relative"
@@ -16,18 +32,45 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
     >
       {/* Thumbnail / Video Container - 4:3 aspect ratio */}
       <div className="relative w-full aspect-[4/3] bg-gray-900 rounded-xl overflow-hidden shadow-sm">
-        <video
-          src={content.video_url}
-          className="w-full h-full object-cover"
-          preload="metadata"
-        />
-        
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full">
-            <Play className="h-6 w-6 text-white fill-white" />
+        {!isPlaying && content?.thumbnail_url && (
+          <div
+            className="absolute inset-0 z-10 cursor-pointer group"
+            onClick={handlePlay}
+          >
+            <Image
+              src={content.thumbnail_url}
+              alt="Content thumbnail"
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
+            />
+            {content.is_premium === 1 ? (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors">
+                <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm">
+                  <Lock className="w-8 h-8 text-white" />
+                </div>
+              </div>
+            ) : (
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-colors group-hover:bg-black/30">
+                <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm transition-transform group-hover:scale-110">
+                  <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
+
+        <video
+          ref={videoRef}
+          src={content.video_url}
+          poster={content?.thumbnail_url}
+          controls={isPlaying || !content?.thumbnail_url}
+          className="w-full h-full object-cover"
+          playsInline
+          preload="metadata"
+          onPlay={() => setIsPlaying(true)}
+          onClick={(e) => isPlaying && e.stopPropagation()}
+        />
 
         {/* Premium Badge */}
         {content.is_premium === 1 && (

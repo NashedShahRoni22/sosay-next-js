@@ -77,20 +77,20 @@ export default function ContentPage() {
             <Play className="h-4 w-4" />
             <span>My Contents</span>
           </TabsTrigger>
-          {/* <TabsTrigger
+          <TabsTrigger
             value="fans"
             className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100 cursor-pointer"
           >
             <LayoutDashboardIcon className="h-4 w-4" />
             <span>Dashboard</span>
-          </TabsTrigger> */}
-          {/* <TabsTrigger
+          </TabsTrigger>
+          <TabsTrigger
             value="my-creators"
             className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900 data-[state=active]:text-yellow-700 dark:data-[state=active]:text-yellow-100 cursor-pointer"
           >
             <Star className="h-4 w-4" />
             <span>My Creators</span>
-          </TabsTrigger> */}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="content" className="space-y-6">

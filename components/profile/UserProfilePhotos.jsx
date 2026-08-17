@@ -79,16 +79,16 @@ export default function UserProfilePhotos({ id }) {
                 className={`group relative aspect-square w-full bg-gray-100 overflow-hidden block ${photo.is_locked ? "cursor-not-allowed" : "cursor-zoom-in"}`}
               >
                 {photo.is_locked ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-white transition-all duration-300 group-hover:from-gray-700 group-hover:to-gray-800">
-                    <div className="bg-white/10 p-4 rounded-full mb-4 backdrop-blur-md border border-white/10 shadow-xl group-hover:scale-110 transition-transform duration-300">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+                    <div className="bg-white/10 p-4 rounded-full mb-4 backdrop-blur-md border border-white/10 shadow">
                       <Lock className="w-7 h-7 text-yellow-400" />
                     </div>
                     {photo.access_type === "distinct_paid" ? (
-                      <span className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] border border-blue-400/30 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] transition-all">
+                      <span className="px-5 py-2 bg-gradient-to-r from-secondary to-blue-600 text-white text-sm font-bold rounded-full">
                         Unlock for ${photo.price || "0.00"}
                       </span>
                     ) : (
-                      <span className="px-5 py-2 bg-white/5 text-gray-300 text-sm font-semibold rounded-full border border-white/10 backdrop-blur-sm">
+                      <span className="px-5 py-2 bg-white/5 text-gray-300 text-sm font-semibold rounded-full border border-white/10">
                         Subscriber Only
                       </span>
                     )}

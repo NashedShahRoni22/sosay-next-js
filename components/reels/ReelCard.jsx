@@ -1,11 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { Play, Eye } from "lucide-react";
 
 export default function ReelCard({ reel, onView }) {
   const videoSrc = reel?.video_url || "";
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  const handlePlay = (e) => {
+    e.stopPropagation();
+    setIsPlaying(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
 
   return (
     <button
@@ -13,27 +23,45 @@ export default function ReelCard({ reel, onView }) {
       onClick={() => onView?.()}
       className="group relative rounded-xl overflow-hidden bg-black aspect-3/5 cursor-pointer w-full text-left"
     >
+      {!isPlaying && reel?.thumbnail_url && (
+        <div
+          className="absolute inset-0 z-10 cursor-pointer group"
+          onClick={handlePlay}
+        >
+          <Image
+            src={reel.thumbnail_url}
+            alt="Reel thumbnail"
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 600px"
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <span className="bg-secondary/90 hover:bg-secondary p-3 rounded-full transition">
+              <Play className="h-6 w-6 text-black fill-black" />
+            </span>
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition">
+            <Play className="h-8 w-8 text-white fill-white" />
+          </div>
+        </div>
+      )}
+
       <video
+        ref={videoRef}
         src={videoSrc}
+        poster={reel?.thumbnail_url}
+        controls={isPlaying || !reel?.thumbnail_url}
         className="w-full h-full object-cover"
-        muted
+        muted={!isPlaying}
         playsInline
         preload="metadata"
+        onPlay={() => setIsPlaying(true)}
+        onClick={(e) => isPlaying && e.stopPropagation()}
       />
 
-      {/* Overlay on hover */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-        <span className="bg-secondary/90 hover:bg-secondary p-3 rounded-full transition">
-          <Play className="h-6 w-6 text-black fill-black" />
-        </span>
-      </div>
-
-      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition">
-        <Play className="h-8 w-8 text-white fill-white" />
-      </div>
-
       {/* Stats (bottom left) */}
-      <div className="absolute bottom-2 left-2 flex gap-2 text-xs text-white bg-black/60 rounded-lg px-2 py-1">
+      <div className="absolute bottom-2 left-2 flex gap-2 text-xs text-white bg-black/60 rounded-lg px-2 py-1 z-20">
         <div className="flex items-center gap-1">
           <Eye className="h-3 w-3" />
           {reel.view_count}
@@ -42,7 +70,7 @@ export default function ReelCard({ reel, onView }) {
 
       {/* User Avatar (bottom right) */}
       {reel.user?.profile_picture && (
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute bottom-2 right-2 z-20">
           <Image
             src={reel.user.profile_picture}
             alt={reel.user.name}
@@ -52,7 +80,6 @@ export default function ReelCard({ reel, onView }) {
           />
         </div>
       )}
-
     </button>
   );
 }
