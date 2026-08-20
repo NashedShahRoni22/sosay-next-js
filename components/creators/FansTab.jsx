@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ContentDashboard from "./ContentDashboard";
+import ContentDashboard from "../creators/ContentDashboard";
 import MyFans from "./MyFans";
 
 export default function FansTab({ accessToken, userInfo }) {

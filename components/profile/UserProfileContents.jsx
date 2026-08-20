@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import ContentCard from "../contents/ContentCard";
 import ContentCardSkeleton from "../contents/ContentCardSkeleton";
 
-export default function UserProfileContents({ id }) {
+export default function UserProfileContents({ id, onContentClick }) {
   const { accessToken } = useAppContext();
   const { data, isLoading, error } = useQuery({
     queryKey: [`/private/contents/${id}`, accessToken],
@@ -24,7 +24,9 @@ export default function UserProfileContents({ id }) {
   }
 
   if (error) {
-    return <p className="text-red-400 text-center mt-10">Failed to load contents</p>;
+    return (
+      <p className="text-red-400 text-center mt-10">Failed to load Reels</p>
+    );
   }
 
   const contents = data?.data || [];
@@ -33,7 +35,7 @@ export default function UserProfileContents({ id }) {
     <div className="mt-6">
       {contents.length === 0 ? (
         <div className="text-center mt-10 h-60 bg-gray-100 flex justify-center items-center rounded-xl">
-          No contents yet
+          No Reels yet
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -41,7 +43,7 @@ export default function UserProfileContents({ id }) {
             <ContentCard
               key={content.id}
               content={content}
-              onView={() => {}}
+              onView={() => onContentClick?.(content.id)}
             />
           ))}
         </div>

@@ -3,30 +3,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Upload,
-  Tv,
-  Film,
-  Clapperboard,
-  Camera,
-  Coffee,
-  LayoutDashboard,
-  Star,
-  Users,
-  LayoutGrid,
-} from "lucide-react";
+import { Upload, Tv, Film } from "lucide-react";
 import ContentTab from "@/components/contents/ContentTab";
 import MyContentTab from "@/components/contents/MyContentTab";
-import FansTab from "@/components/contents/FansTab";
-import MyCreatorsTab from "@/components/contents/MyCreatorsTab";
 import UploadContentDialog from "@/components/contents/UploadContentDialog";
 import ContentDetails from "@/components/contents/ContentDetails";
 import { useAppContext } from "@/context/context";
-import MyReelsTab from "@/components/reels/MyReelsTab";
-import ProfilePhotos from "@/components/profile/ProfilePhotos";
-import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
-import MyFans from "@/components/contents/MyFans";
-import ContentDashboard from "@/components/contents/ContentDashboard";
 
 export default function ContentPage() {
   const { accessToken, userInfo } = useAppContext();
@@ -50,7 +32,7 @@ export default function ContentPage() {
   const tabs = [
     {
       value: "content",
-      label: "Contents",
+      label: "Reels",
       icon: Tv,
       colorClass:
         "data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-100",
@@ -63,7 +45,7 @@ export default function ContentPage() {
     },
     {
       value: "my-content",
-      label: "My Contents",
+      label: "My Reels",
       icon: Film,
       colorClass:
         "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
@@ -75,74 +57,6 @@ export default function ContentPage() {
         />
       ),
     },
-    {
-      value: "my-reels",
-      label: "My Reels",
-      icon: Clapperboard,
-      colorClass:
-        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
-      content: (
-        <MyReelsTab
-          accessToken={accessToken}
-          onUploadClick={() => setOpenUploadDialog(true)}
-          onContentClick={setActiveContentId}
-        />
-      ),
-    },
-    {
-      value: "my-photos",
-      label: "My Photos",
-      icon: Camera,
-      colorClass:
-        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
-      content: (
-        <ProfilePhotos
-          accessToken={accessToken}
-          onUploadClick={() => setOpenUploadDialog(true)}
-          onContentClick={setActiveContentId}
-        />
-      ),
-    },
-    {
-      value: "my-lifestyle",
-      label: "My Lifestyle",
-      icon: Coffee,
-      colorClass:
-        "data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100",
-      content: (
-        <ProfileLifestyle
-          accessToken={accessToken}
-          onUploadClick={() => setOpenUploadDialog(true)}
-          onContentClick={setActiveContentId}
-        />
-      ),
-    },
-    {
-      value: "dashboard",
-      label: "Dashboard",
-      icon: LayoutGrid,
-      colorClass:
-        "data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100",
-      content: (
-        <ContentDashboard accessToken={accessToken} userInfo={userInfo} />
-      ),
-    },
-    {
-      value: "fans",
-      label: "My Fans",
-      icon: Users,
-      colorClass:
-        "data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900 data-[state=active]:text-pink-700 dark:data-[state=active]:text-pink-100",
-      content: <MyFans accessToken={accessToken} userInfo={userInfo} />,
-    },
-    {
-      value: "my-creators",
-      label: "My Creators",
-      icon: Star,
-      colorClass:
-        "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900 data-[state=active]:text-yellow-700 dark:data-[state=active]:text-yellow-100",
-      content: <MyCreatorsTab accessToken={accessToken} />,
-    },
   ];
 
   return (
@@ -151,10 +65,10 @@ export default function ContentPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Content
+            Reels
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Manage and view all your content
+            Manage and view all your Reels
           </p>
         </div>
         <Button
@@ -162,7 +76,7 @@ export default function ContentPage() {
           className="gap-2 bg-secondary hover:bg-secondary/90 cursor-pointer"
         >
           <Upload className="h-4 w-4" />
-          <span className="hidden sm:inline">Upload Content</span>
+          <span className="hidden sm:inline">Upload Reel</span>
         </Button>
       </div>
 

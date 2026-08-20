@@ -14,12 +14,12 @@ export default function CreateButtons() {
     },
     {
       href: "/app/reels",
-      label: "Reels",
+      label: "Shorts",
       icon: Clapperboard,
     },
     {
       href: "/app/content",
-      label: "Content",
+      label: "Reels",
       icon: Tv2,
     },
     {

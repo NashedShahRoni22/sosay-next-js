@@ -85,10 +85,10 @@ export default function ReelsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Reels
+            Shorts
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Watch and share short video reels from your community
+            Watch and share short video for your community
           </p>
         </div>
         <Button
@@ -96,7 +96,7 @@ export default function ReelsPage() {
           className="gap-2 bg-secondary hover:bg-secondary/90 cursor-pointer rounded-full"
         >
           <Upload className="h-4 w-4" />
-          <span className="hidden sm:inline">Upload Reel</span>
+          <span className="hidden sm:inline">Upload Short</span>
         </Button>
       </div>
 
@@ -108,18 +108,18 @@ export default function ReelsPage() {
             className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-100 cursor-pointer"
           >
             <Play className="h-4 w-4" />
-            <span>Reels</span>
+            <span>Shorts</span>
           </TabsTrigger>
           <TabsTrigger
             value="my-reels"
             className="gap-2 rounded-full px-4 py-2 data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-100 cursor-pointer"
           >
             <Upload className="h-4 w-4" />
-            <span>My Reels</span>
+            <span>My Shorts</span>
           </TabsTrigger>
         </TabsList>
 
-        {/* Reels Tab (Public Feed) */}
+        {/* Shorts Tab (Public Feed) */}
         <TabsContent value="reels" className="space-y-6">
           <PublicReelsTab
             reels={reels}
@@ -131,7 +131,7 @@ export default function ReelsPage() {
           />
         </TabsContent>
 
-        {/* My Reels Tab (User's Uploads) */}
+        {/* My Shorts Tab (User's Uploads) */}
         <TabsContent value="my-reels" className="space-y-6">
           <MyReelsTab
             accessToken={accessToken}
@@ -149,7 +149,7 @@ export default function ReelsPage() {
         onUploadSuccess={() => setActiveTab("my-reels")}
       />
 
-      {/* Reels Viewer Modal */}
+      {/* Shorts Viewer Modal */}
       <ReelsViewer
         open={openViewer}
         reels={viewerReels}

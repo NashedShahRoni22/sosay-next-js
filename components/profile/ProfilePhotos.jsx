@@ -229,7 +229,7 @@ export default function ProfilePhotos() {
               key={photo.id}
               className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col relative group"
             >
-              <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 z-10 flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 lg:transition-opacity">
                 <button
                   type="button"
                   onClick={() => handleEditClick(photo)}
@@ -331,7 +331,9 @@ export default function ProfilePhotos() {
                   onChange={(e) => setCaption(e.target.value)}
                   placeholder="Write a caption for your photo..."
                   rows={3}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none transition-shadow"
                 />
               </div>
@@ -343,7 +345,9 @@ export default function ProfilePhotos() {
                 <select
                   value={accessType}
                   onChange={(e) => setAccessType(e.target.value)}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                 >
                   <option value="free">Free</option>
@@ -361,7 +365,9 @@ export default function ProfilePhotos() {
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    disabled={uploadMutation.isPending || updateMutation.isPending}
+                    disabled={
+                      uploadMutation.isPending || updateMutation.isPending
+                    }
                     placeholder="Enter price"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                     required
@@ -373,14 +379,20 @@ export default function ProfilePhotos() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={(!editingPhoto && !selectedFile) || uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    (!editingPhoto && !selectedFile) ||
+                    uploadMutation.isPending ||
+                    updateMutation.isPending
+                  }
                   className="px-5 py-2.5 text-sm font-medium text-white bg-secondary rounded-xl hover:bg-secondary/90 transition-colors flex items-center gap-2 disabled:opacity-70 shadow-sm"
                 >
                   {(uploadMutation.isPending || updateMutation.isPending) && (

@@ -20,7 +20,7 @@ export default function TopBar() {
 
   const middleItems = [
     { name: "Home", icon: Home, href: "/app" },
-    { name: "Reels", icon: Video, href: "/app/reels" },
+    { name: "Shorts", icon: Video, href: "/app/reels" },
     { name: "Shop", icon: Store, href: "/app/shop" },
     { name: "Friends", icon: Users, href: "/app/friends" },
     { name: "Pages", icon: Layers, href: "/app/pages" },

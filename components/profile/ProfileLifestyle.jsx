@@ -69,7 +69,11 @@ export default function ProfileLifestyle() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, fd }) => {
-      return postWithToken(`/user/profile/lifestyle/photos/${id}`, fd, accessToken);
+      return postWithToken(
+        `/user/profile/lifestyle/photos/${id}`,
+        fd,
+        accessToken,
+      );
     },
     onSuccess: (res) => {
       if (res.status || res.status_code === 200 || res.status_code === 201) {
@@ -91,7 +95,11 @@ export default function ProfileLifestyle() {
     mutationFn: async (id) => {
       const fd = new FormData();
       fd.append("_method", "DELETE");
-      return postWithToken(`/user/profile/lifestyle/photos/${id}`, fd, accessToken);
+      return postWithToken(
+        `/user/profile/lifestyle/photos/${id}`,
+        fd,
+        accessToken,
+      );
     },
     onSuccess: (res) => {
       if (res.status || res.status_code === 200) {
@@ -183,12 +191,12 @@ export default function ProfileLifestyle() {
       if (caption.trim()) {
         fd.append("caption", caption.trim());
       }
-      
+
       fd.append("access_type", accessType);
       if (accessType === "distinct_paid") {
         fd.append("price", price);
       }
-  
+
       uploadMutation.mutate(fd);
     }
   };
@@ -262,7 +270,7 @@ export default function ProfileLifestyle() {
               key={photo.id}
               className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col relative group"
             >
-              <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 z-10 flex gap-2 lg:opacity-0 lg:group-hover:opacity-100 lg:transition-opacity">
                 <button
                   type="button"
                   onClick={() => handleEditClick(photo)}
@@ -334,7 +342,9 @@ export default function ProfileLifestyle() {
           <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
               <h3 className="font-bold text-gray-800 text-lg">
-                {editingPhoto ? "Edit Lifestyle Photo" : "Upload Lifestyle Photo"}
+                {editingPhoto
+                  ? "Edit Lifestyle Photo"
+                  : "Upload Lifestyle Photo"}
               </h3>
               <button
                 type="button"
@@ -357,7 +367,11 @@ export default function ProfileLifestyle() {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  disabled={uploadMutation.isPending || updateMutation.isPending || isLoadingCategories}
+                  disabled={
+                    uploadMutation.isPending ||
+                    updateMutation.isPending ||
+                    isLoadingCategories
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                   required
                 >
@@ -403,7 +417,9 @@ export default function ProfileLifestyle() {
                   onChange={(e) => setCaption(e.target.value)}
                   placeholder="Write a caption..."
                   rows={3}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none transition-shadow"
                 />
               </div>
@@ -415,7 +431,9 @@ export default function ProfileLifestyle() {
                 <select
                   value={accessType}
                   onChange={(e) => setAccessType(e.target.value)}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                 >
                   <option value="free">Free</option>
@@ -433,7 +451,9 @@ export default function ProfileLifestyle() {
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    disabled={uploadMutation.isPending || updateMutation.isPending}
+                    disabled={
+                      uploadMutation.isPending || updateMutation.isPending
+                    }
                     placeholder="Enter price"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 bg-white"
                     required
@@ -445,7 +465,9 @@ export default function ProfileLifestyle() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  disabled={uploadMutation.isPending || updateMutation.isPending}
+                  disabled={
+                    uploadMutation.isPending || updateMutation.isPending
+                  }
                   className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                 >
                   Cancel
@@ -453,7 +475,10 @@ export default function ProfileLifestyle() {
                 <button
                   type="submit"
                   disabled={
-                    (!editingPhoto && !selectedFile) || !categoryId || uploadMutation.isPending || updateMutation.isPending
+                    (!editingPhoto && !selectedFile) ||
+                    !categoryId ||
+                    uploadMutation.isPending ||
+                    updateMutation.isPending
                   }
                   className="px-5 py-2.5 text-sm font-medium text-white bg-secondary rounded-xl hover:bg-secondary/90 transition-colors flex items-center gap-2 disabled:opacity-70 shadow-sm"
                 >

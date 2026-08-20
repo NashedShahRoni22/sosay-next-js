@@ -1,6 +1,19 @@
-import React from 'react';
-import Image from 'next/image';
-import { Play, Heart, MessageCircle, Crown, MoreVertical, Star, StarOff, Eye, EyeOff, Trash2, Loader2, Lock } from 'lucide-react';
+import React from "react";
+import Image from "next/image";
+import {
+  Play,
+  Heart,
+  MessageCircle,
+  Crown,
+  MoreVertical,
+  Star,
+  StarOff,
+  Eye,
+  EyeOff,
+  Trash2,
+  Loader2,
+  Lock,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +22,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-export default function ContentCard({ content, onView, onTogglePremium, onToggleActive, onDelete, isDeleting }) {
-
+export default function ContentCard({
+  content,
+  onView,
+  onTogglePremium,
+  onToggleActive,
+  onDelete,
+  isDeleting,
+}) {
   return (
-    <div 
+    <div
       className="group flex flex-col gap-2 cursor-pointer relative"
       onClick={onView}
     >
@@ -29,14 +48,17 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
             />
             {content.is_premium === 1 ? (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors">
-                <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm">
-                  <Lock className="w-8 h-8 text-white" />
+                <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm">
+                  <Lock className="size-6 text-white" />
                 </div>
               </div>
             ) : (
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-colors group-hover:bg-black/30">
-                <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm transition-transform group-hover:scale-110">
-                  <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+                <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm transition-transform group-hover:scale-110">
+                  <Play
+                    className="size-6 text-white ml-1"
+                    fill="currentColor"
+                  />
                 </div>
               </div>
             )}
@@ -97,7 +119,7 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
                     )}
                   </DropdownMenuItem>
                 )}
-                
+
                 {onToggleActive && (
                   <DropdownMenuItem
                     onClick={(e) => {
@@ -155,17 +177,23 @@ export default function ContentCard({ content, onView, onTogglePremium, onToggle
         {/* User Info */}
         <div className="flex items-center gap-2 mt-1">
           <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-             {content.user?.profile_picture ? (
-               <img src={content.user.profile_picture} alt={content.user.name} className="w-full h-full object-cover" />
-             ) : (
-               <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-[10px]">
-                 {content.user?.name?.charAt(0) || 'U'}
-               </div>
-             )}
+            {content.user?.profile_picture ? (
+              <img
+                src={content.user.profile_picture}
+                alt={content.user.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-[10px]">
+                {content.user?.name?.charAt(0) || "U"}
+              </div>
+            )}
           </div>
-          <span className="text-xs text-gray-600 truncate">{content.user?.name || "Unknown User"}</span>
+          <span className="text-xs text-gray-600 truncate">
+            {content.user?.name || "Unknown User"}
+          </span>
         </div>
-        
+
         <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 font-medium">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5" />

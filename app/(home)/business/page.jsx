@@ -30,7 +30,7 @@ export default function BusinessSosay() {
       icon: <TrendingUp className="w-8 h-8 text-pink-600" />,
       title: "Grow Awareness",
       description:
-        "Leverage engaging content across posts, Stories, and Reels to showcase your brand and reach wider audiences organically.",
+        "Leverage engaging content across posts, Shorts, and Reels to showcase your brand and reach wider audiences organically.",
       metric: "3x more reach",
     },
     {

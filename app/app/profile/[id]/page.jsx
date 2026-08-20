@@ -14,7 +14,6 @@ import {
   Loader2,
   UserRoundX,
   UserRoundPlus,
-  LayoutGrid,
   ImageIcon,
   Coffee,
   PlaySquare,
@@ -33,6 +32,9 @@ import UserProfileContents from "@/components/profile/UserProfileContents";
 import UserProfileProducts from "@/components/profile/UserProfileProducts";
 import UserProfilePhotos from "@/components/profile/UserProfilePhotos";
 import UserProfileLifestyle from "@/components/profile/UserProfileLifestyle";
+import ContentDetails from "@/components/contents/ContentDetails";
+import ReelsViewer from "@/components/reels/ReelsViewer";
+import ContentPaymentModal from "@/components/contents/ContentPaymentModal";
 
 function ProfilePicture({ src, onClick }) {
   const [isLoading, setIsLoading] = useState(Boolean(src));
@@ -77,8 +79,20 @@ export default function ProfilePage() {
   const [receiver, setReceiver] = useState(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("Posts");
+
+  const [activeContentId, setActiveContentId] = useState(null);
+  const [openViewer, setOpenViewer] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerReels, setViewerReels] = useState([]);
+
+  const openReelViewer = (list, index) => {
+    setViewerReels(list);
+    setViewerIndex(index);
+    setOpenViewer(true);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -88,8 +102,8 @@ export default function ProfilePage() {
     { name: "Posts", icon: Rss, Component: UserProfilePost },
     { name: "Photos", icon: ImageIcon, Component: UserProfilePhotos },
     { name: "Lifestyle", icon: Coffee, Component: UserProfileLifestyle },
-    { name: "Contents", icon: PlaySquare, Component: UserProfileContents },
-    { name: "Reels", icon: Clapperboard, Component: UserProfileReels },
+    { name: "Reels", icon: PlaySquare, Component: UserProfileContents },
+    { name: "Shorts", icon: Clapperboard, Component: UserProfileReels },
     { name: "Listings", icon: ShoppingBag, Component: UserProfileProducts },
   ];
 
@@ -99,6 +113,21 @@ export default function ProfilePage() {
     queryFn: fetchWithToken,
     enabled: !!accessToken,
   });
+
+  // Fetch creator profile
+  const { data: creatorData } = useQuery({
+    queryKey: ["/contents/creators", id],
+    queryFn: () =>
+      fetchWithToken({
+        queryKey: [`/contents/creators/${id}`, accessToken],
+      }),
+    enabled: !!id,
+  });
+
+  const creatorProfile = creatorData?.data?.creator_profile;
+  const isSubscribed = creatorData?.data?.is_subscribed;
+
+  console.log(creatorProfile, isSubscribed);
 
   // Add Friend
   const addFriendMutation = useMutation({
@@ -202,6 +231,19 @@ export default function ProfilePage() {
     cancelFriendRequestMutation.mutate(formData);
   };
 
+  if (activeContentId) {
+    return (
+      <section className="max-w-5xl mx-auto space-y-4 mt-14 md:mt-8 p-4">
+        <ContentDetails
+          contentId={activeContentId}
+          onBack={() => setActiveContentId(null)}
+          onContentClick={setActiveContentId}
+          accessToken={accessToken}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="mx-auto mt-14 max-w-3xl space-y-6 px-3 sm:px-4 md:mt-0">
       {/* Cover Picture */}
@@ -231,7 +273,7 @@ export default function ProfilePage() {
 
       {/* Profile Picture and Info */}
       <div className="mx-auto max-w-5xl px-3 sm:px-5">
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16 md:-mt-20">
+        <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16">
           <div className="relative">
             {profileDataLoading ? (
               <div className="size-32 md:size-40 rounded-full border-4 border-white bg-accent animate-pulse" />
@@ -254,7 +296,7 @@ export default function ProfilePage() {
               )}
             </h1>
 
-            <div className="mt-2 flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-start">
+            <div className="mt-4 flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-start">
               {!profileData?.friends?.is_self && (
                 <>
                   {profileData?.friends?.is_friend ? (
@@ -312,6 +354,26 @@ export default function ProfilePage() {
                   </Button>
                 </>
               )}
+
+              {creatorProfile && (
+                <Button
+                  variant={isSubscribed ? "outline" : "default"}
+                  className={
+                    !isSubscribed
+                      ? "bg-secondary text-white hover:bg-secondary/95 w-full sm:w-auto"
+                      : "w-full sm:w-auto"
+                  }
+                  onClick={() => {
+                    if (!isSubscribed) {
+                      setPaymentModalOpen(true);
+                    }
+                  }}
+                >
+                  {isSubscribed
+                    ? "Subscribed"
+                    : `Subscribe for $${creatorProfile.subscription_price}`}
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -357,7 +419,13 @@ export default function ProfilePage() {
               const ActiveComponent = Tabs.find(
                 (tab) => tab.name === activeTab,
               )?.Component;
-              return ActiveComponent ? <ActiveComponent id={id} /> : null;
+              return ActiveComponent ? (
+                <ActiveComponent
+                  id={id}
+                  onReelClick={openReelViewer}
+                  onContentClick={setActiveContentId}
+                />
+              ) : null;
             })()}
           </motion.div>
         </AnimatePresence>
@@ -381,6 +449,19 @@ export default function ProfilePage() {
         close={() => setIsLightboxOpen(false)}
         slides={lightboxSlides}
         index={lightboxIndex}
+      />
+      <ReelsViewer
+        open={openViewer}
+        reels={viewerReels}
+        initialIndex={viewerIndex}
+        onClose={() => setOpenViewer(false)}
+      />
+
+      <ContentPaymentModal
+        creatorId={id}
+        accessToken={accessToken}
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
       />
     </section>
   );

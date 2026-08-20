@@ -124,17 +124,18 @@ export default function MyReelsTab({
     <section className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-bold text-gray-800">My Reels</h2>
+          <h2 className="text-lg font-bold text-gray-800">My Shorts</h2>
           <p className="text-xs text-gray-400 mt-0.5">
             {reels.length} item{reels.length !== 1 ? "s" : ""} listed
           </p>
         </div>
-        <Link
-          href="/app/reels"
-          className="cursor-pointer text-xs px-4 py-2 bg-secondary rounded-full text-white"
+        <Button
+          onClick={onUploadClick}
+          className="cursor-pointer text-xs px-4 py-2 bg-secondary hover:bg-secondary/90 rounded-full text-white gap-2 h-auto"
         >
-          Explore Reels
-        </Link>
+          <Upload className="h-3 w-3" />
+          Upload Reel
+        </Button>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {reels.map((reel, index) => (

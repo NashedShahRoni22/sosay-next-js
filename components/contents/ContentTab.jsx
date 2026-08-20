@@ -43,7 +43,7 @@ export default function ContentTab({ accessToken, onContentClick }) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Play className="h-12 w-12 text-gray-300 mb-3" />
-        <p className="text-gray-500 font-medium">No contents available</p>
+        <p className="text-gray-500 font-medium">No Reels available</p>
         <p className="text-sm text-gray-400">
           Check back soon for community updates
         </p>

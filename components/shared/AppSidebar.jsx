@@ -13,6 +13,7 @@ import {
   BriefcaseBusiness,
   Search,
   Tv,
+  PencilRuler,
 } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
@@ -48,8 +49,9 @@ export default function AppSidebar({ isOpen, onClose }) {
     },
     { name: "Friends", icon: Users, href: "/app/friends" },
     { name: "Search", icon: Search, href: "/app/search" },
-    { name: "Reels", icon: Video, href: "/app/reels" },
-    { name: "Contents", icon: Tv, href: "/app/content" },
+    { name: "Reels", icon: Tv, href: "/app/content" },
+    { name: "Shorts", icon: Video, href: "/app/reels" },
+    { name: "Creators", icon: PencilRuler, href: "/app/creators" },
     { name: "SPUMP Market", icon: Store, href: "/app/shop" },
     { name: "Ads Manager", icon: BriefcaseBusiness, href: "/app/ads-manager" },
     // { name: "Pages", icon: Layers, href: "/app/pages" },

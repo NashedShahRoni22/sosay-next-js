@@ -28,14 +28,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import MyReelsTab from "@/components/reels/MyReelsTab";
 import MyContentTab from "@/components/contents/MyContentTab";
 import UserShop from "@/components/shop/UserShop";
-import ReelsPage from "../reels/ReelsPage";
-import ContentPage from "../content/ContentPage";
 import ProfilePhotos from "@/components/profile/ProfilePhotos";
 import ProfileLifestyle from "@/components/profile/ProfileLifestyle";
-import FansTab from "@/components/contents/FansTab";
-import MyCreatorsTab from "@/components/contents/MyCreatorsTab";
+import MyCreatorsTab from "@/components/creators/MyCreatorsTab";
 import MyFans from "@/components/contents/MyFans";
-import ContentDashboard from "@/components/contents/ContentDashboard";
+import ContentDashboard from "@/components/creators/ContentDashboard";
+import UploadContentDialog from "@/components/contents/UploadContentDialog";
+import UploadReelDialog from "@/components/reels/UploadReelDialog";
+import ContentDetails from "@/components/contents/ContentDetails";
+import ReelsViewer from "@/components/reels/ReelsViewer";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
@@ -54,6 +55,19 @@ export default function ProfilePage() {
   const [newCoverImage, setNewCoverImage] = useState(null);
 
   const [activeTab, setActiveTab] = useState("Posts");
+  const [openUploadDialog, setOpenUploadDialog] = useState(false);
+  const [openUploadReelDialog, setOpenUploadReelDialog] = useState(false);
+
+  const [activeContentId, setActiveContentId] = useState(null);
+  const [openViewer, setOpenViewer] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerReels, setViewerReels] = useState([]);
+
+  const openReelViewer = (list, index) => {
+    setViewerReels(list);
+    setViewerIndex(index);
+    setOpenViewer(true);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -63,13 +77,13 @@ export default function ProfilePage() {
   const Tabs = [
     { name: "Posts", icon: Rss, Component: ProfilePost },
     { name: "Dashboard", icon: LayoutGrid, Component: ContentDashboard },
-    { name: "My Photos", icon: ImageIcon, Component: ProfilePhotos },
-    { name: "My Lifestyle", icon: Coffee, Component: ProfileLifestyle },
-    { name: "My Contents", icon: PlaySquare, Component: MyContentTab },
-    { name: "My Reels", icon: Clapperboard, Component: MyReelsTab },
-    { name: "My Listings", icon: ShoppingBag, Component: UserShop },
-    { name: "My Fans", icon: Users, Component: MyFans },
-    { name: "My Creators", icon: Star, Component: MyCreatorsTab },
+    { name: "Photos", icon: ImageIcon, Component: ProfilePhotos },
+    { name: "Lifestyle", icon: Coffee, Component: ProfileLifestyle },
+    { name: "Reels", icon: PlaySquare, Component: MyContentTab },
+    { name: "Shorts", icon: Clapperboard, Component: MyReelsTab },
+    { name: "Listings", icon: ShoppingBag, Component: UserShop },
+    { name: "Fans", icon: Users, Component: MyFans },
+    { name: "Other Creators", icon: Star, Component: MyCreatorsTab },
   ];
 
   // Fetch profile pictures
@@ -313,6 +327,19 @@ export default function ProfilePage() {
     addCoverPictureMutation.isPending ||
     updateCoverPictureMutation.isPending;
 
+  if (activeContentId) {
+    return (
+      <section className="max-w-5xl mx-auto space-y-4 mt-14 md:mt-8 p-4">
+        <ContentDetails
+          contentId={activeContentId}
+          onBack={() => setActiveContentId(null)}
+          onContentClick={setActiveContentId}
+          accessToken={accessToken}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="max-w-3xl mx-auto space-y-6 px-4 mt-14 md:mt-0">
       {/* Cover Picture */}
@@ -460,9 +487,15 @@ export default function ProfilePage() {
                 <ActiveComponent
                   accessToken={accessToken}
                   userInfo={userInfo}
-                  onContentClick={() => {}}
-                  onUploadClick={() => {}}
-                  onReelClick={() => {}}
+                  onContentClick={setActiveContentId}
+                  onUploadClick={() => {
+                    if (activeTab === "Shorts") {
+                      setOpenUploadReelDialog(true);
+                    } else {
+                      setOpenUploadDialog(true);
+                    }
+                  }}
+                  onReelClick={openReelViewer}
                 />
               ) : null;
             })()}
@@ -496,6 +529,27 @@ export default function ProfilePage() {
         onImageChange={handleCoverImageChange}
         onAddCoverPicture={handleAddCoverPicture}
         onUpdateCoverPicture={handleUpdateCoverPicture}
+      />
+
+      {/* Upload Dialogs */}
+      <UploadContentDialog
+        open={openUploadDialog}
+        onOpenChange={setOpenUploadDialog}
+        accessToken={accessToken}
+        onUploadSuccess={() => queryClient.invalidateQueries(["/contents/me"])}
+      />
+      <UploadReelDialog
+        open={openUploadReelDialog}
+        onOpenChange={setOpenUploadReelDialog}
+        accessToken={accessToken}
+        onUploadSuccess={() => queryClient.invalidateQueries(["/reels"])}
+      />
+
+      <ReelsViewer
+        open={openViewer}
+        reels={viewerReels}
+        initialIndex={viewerIndex}
+        onClose={() => setOpenViewer(false)}
       />
     </section>
   );

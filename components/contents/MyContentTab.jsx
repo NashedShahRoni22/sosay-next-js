@@ -137,13 +137,13 @@ export default function MyContentTab({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Play className="h-12 w-12 text-gray-300 mb-3" />
-        <p className="text-gray-500 font-medium">No content uploaded yet</p>
+        <p className="text-gray-500 font-medium">No Reels uploaded yet</p>
         <p className="text-sm text-gray-400">
-          Upload your first content to get started
+          Upload your first Reel to get started
         </p>
         <Button onClick={onUploadClick} className="mt-4 gap-2 cursor-pointer">
           <Upload className="h-4 w-4" />
-          Upload Content
+          Upload Reel
         </Button>
       </div>
     );
@@ -153,18 +153,19 @@ export default function MyContentTab({
     <section className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-bold text-gray-800">My Contents</h2>
+          <h2 className="text-lg font-bold text-gray-800">My Reels</h2>
           <p className="text-xs text-gray-400 mt-0.5">
             {contents.length} item{contents.length !== 1 ? "s" : ""} listed
           </p>
         </div>
 
-        <Link
-          href="/app/content"
-          className="cursor-pointer text-xs px-4 py-2 bg-secondary rounded-full text-white"
+        <Button
+          onClick={onUploadClick}
+          className="cursor-pointer text-xs px-4 py-2 bg-secondary hover:bg-secondary/90 rounded-full text-white gap-2 h-auto"
         >
-          Explore Contents
-        </Link>
+          <Upload className="h-3 w-3" />
+          Upload Reel
+        </Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {contents.map((content) => (
