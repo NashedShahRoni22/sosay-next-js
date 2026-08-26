@@ -43,7 +43,13 @@ export default function FeedPage() {
       if (currentPage === 1) {
         setAllPosts(data.data);
       } else {
-        setAllPosts((prev) => [...prev, ...data.data]);
+        setAllPosts((prev) => {
+          // Filter out duplicates based on post id
+          const newPosts = data.data.filter(
+            (newPost) => !prev.some((p) => p.id === newPost.id)
+          );
+          return [...prev, ...newPosts];
+        });
       }
       setPagination(data.pagination || {});
       setHasNextPage(!!data.pagination?.next_page_url);
