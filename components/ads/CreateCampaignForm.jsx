@@ -40,6 +40,7 @@ export default function CreateCampaignForm({
   const [targetGender, setTargetGender] = useState("");
   const [targetMinAge, setTargetMinAge] = useState("");
   const [targetMaxAge, setTargetMaxAge] = useState("");
+  const [placementArea, setPlacementArea] = useState("feed_inline");
 
   // Create campaign mutation
   const createCampaignMutation = useMutation({
@@ -62,6 +63,7 @@ export default function CreateCampaignForm({
       if (targetGender) formData.append("target_gender", targetGender);
       if (targetMinAge) formData.append("target_min_age", targetMinAge);
       if (targetMaxAge) formData.append("target_max_age", targetMaxAge);
+      if (placementArea) formData.append("placement_area", placementArea);
 
       return await postWithToken("/ads/campaigns", formData, accessToken);
     },
@@ -77,6 +79,7 @@ export default function CreateCampaignForm({
         setTargetGender("");
         setTargetMinAge("");
         setTargetMaxAge("");
+        setPlacementArea("feed_inline");
 
         // Refetch campaigns
         queryClient.invalidateQueries(["/ads/campaigns/me", accessToken]);
@@ -145,6 +148,30 @@ export default function CreateCampaignForm({
                 className="w-full"
               />
               <p className="text-xs text-gray-500">Campaign duration</p>
+            </div>
+
+            {/* Placement Area */}
+            <div className="space-y-2">
+              <Label htmlFor="placementArea">Placement Area</Label>
+              <Select value={placementArea} onValueChange={setPlacementArea}>
+                <SelectTrigger id="placementArea" className="w-full">
+                  <SelectValue placeholder="Select placement area" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="feed_inline">Feed Inline</SelectItem>
+                  <SelectItem value="reels_interstitial">
+                    Reels Interstitial
+                  </SelectItem>
+                  <SelectItem value="marketplace_featured">
+                    Marketplace Featured
+                  </SelectItem>
+                  <SelectItem value="home_sidebar">Home Sidebar</SelectItem>
+                  <SelectItem value="profile_banner">Profile Banner</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                Select where your ads appear
+              </p>
             </div>
           </div>
 

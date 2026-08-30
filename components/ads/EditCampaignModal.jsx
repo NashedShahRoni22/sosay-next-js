@@ -38,6 +38,7 @@ export default function EditCampaignModal({
   const [targetGender, setTargetGender] = useState("");
   const [targetMinAge, setTargetMinAge] = useState("");
   const [targetMaxAge, setTargetMaxAge] = useState("");
+  const [placementArea, setPlacementArea] = useState("");
 
   useEffect(() => {
     if (campaign && open) {
@@ -49,6 +50,7 @@ export default function EditCampaignModal({
       setTargetGender(campaign.target_gender || "");
       setTargetMinAge(campaign.target_min_age || "");
       setTargetMaxAge(campaign.target_max_age || "");
+      setPlacementArea(campaign.placement_area || "");
     }
   }, [campaign, open]);
 
@@ -80,6 +82,9 @@ export default function EditCampaignModal({
       }
       if (targetMaxAge) {
         formData.append("target_max_age", targetMaxAge);
+      }
+      if (placementArea) {
+        formData.append("placement_area", placementArea);
       }
 
       return await postWithToken(
@@ -151,6 +156,27 @@ export default function EditCampaignModal({
                 required
                 className="w-full"
               />
+            </div>
+
+            {/* Placement Area */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-placementArea">Placement Area</Label>
+              <Select value={placementArea} onValueChange={setPlacementArea}>
+                <SelectTrigger id="edit-placementArea" className="w-full">
+                  <SelectValue placeholder="Select placement area" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="feed_inline">Feed Inline</SelectItem>
+                  <SelectItem value="reels_interstitial">
+                    Reels Interstitial
+                  </SelectItem>
+                  <SelectItem value="marketplace_featured">
+                    Marketplace Featured
+                  </SelectItem>
+                  <SelectItem value="home_sidebar">Home Sidebar</SelectItem>
+                  <SelectItem value="profile_banner">Profile Banner</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

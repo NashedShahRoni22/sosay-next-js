@@ -7,11 +7,13 @@ import { fetchWithToken } from "@/helpers/api";
 import PostCardSkeletonList from "@/components/feed/PostCardSkletonList";
 import { ChevronUp } from "lucide-react";
 import SuggestionList from "@/components/feed/SuggestionList";
+import React from "react";
 
 export default function FeedPage() {
   const { accessToken } = useAppContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [allPosts, setAllPosts] = useState([]);
+  const [feedSections, setFeedSections] = useState([]);
   const [pagination, setPagination] = useState({});
   const [hasNextPage, setHasNextPage] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -20,39 +22,63 @@ export default function FeedPage() {
   const observerRef = useRef(null);
   const postRefs = useRef([]);
 
-  // Fetch posts for specific page
+  // Fetch posts and ads for specific page
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [
       "/feed_management/public/feed/all/post",
       accessToken,
       currentPage,
     ],
-    queryFn: ({ queryKey }) => {
-      const [endpoint, token] = queryKey;
-      return fetchWithToken({
-        queryKey: [`${endpoint}?page=${currentPage}`, token],
+    queryFn: async ({ queryKey }) => {
+      const [endpoint, token, page] = queryKey;
+      
+      const postsPromise = fetchWithToken({
+        queryKey: [`${endpoint}?page=${page}`, token],
       });
+      
+      const adsPromise = fetchWithToken({
+        queryKey: [`/ads/fetch?placement_area=feed_inline&page=${page}`, token],
+      }).catch(() => ({ data: [] }));
+
+      const [postsRes, adsRes] = await Promise.all([postsPromise, adsPromise]);
+      return { posts: postsRes, ads: adsRes };
     },
     enabled: !!accessToken && hasNextPage,
     keepPreviousData: true,
   });
 
-  // Combine posts from all pages
+  // Combine posts and ads from all pages
   useEffect(() => {
-    if (data?.data) {
+    if (data?.posts?.data) {
+      const newPosts = data.posts.data;
+      const newAds = data.ads?.data || [];
+
       if (currentPage === 1) {
-        setAllPosts(data.data);
+        setAllPosts(newPosts);
+        setFeedSections([{ page: 1, posts: newPosts, ads: newAds }]);
       } else {
         setAllPosts((prev) => {
           // Filter out duplicates based on post id
-          const newPosts = data.data.filter(
+          const uniqueNewPosts = newPosts.filter(
             (newPost) => !prev.some((p) => p.id === newPost.id)
           );
-          return [...prev, ...newPosts];
+          return [...prev, ...uniqueNewPosts];
+        });
+
+        setFeedSections((prev) => {
+          if (prev.some((s) => s.page === currentPage)) return prev;
+
+          const existingPostIds = new Set(prev.flatMap((s) => s.posts.map((p) => p.id)));
+          const uniquePosts = newPosts.filter((p) => !existingPostIds.has(p.id));
+
+          const existingAdIds = new Set(prev.flatMap((s) => s.ads.map((a) => a.id)));
+          const uniqueAds = newAds.filter((a) => !existingAdIds.has(a.id));
+
+          return [...prev, { page: currentPage, posts: uniquePosts, ads: uniqueAds }];
         });
       }
-      setPagination(data.pagination || {});
-      setHasNextPage(!!data.pagination?.next_page_url);
+      setPagination(data.posts.pagination || {});
+      setHasNextPage(!!data.posts.pagination?.next_page_url);
     }
   }, [data, currentPage]);
 
@@ -148,18 +174,30 @@ export default function FeedPage() {
       )}
 
       <div>
-        {allPosts.length === 0 && !isLoading ? (
+        {feedSections.length === 0 && !isLoading ? (
           <p className="text-center text-gray-500 py-8">No posts available</p>
         ) : (
-          allPosts.map((post, i) => (
-            <div
-              key={i}
-              ref={(el) => {
-                if (el) postRefs.current[i] = el;
-              }}
-            >
-              <PostCard post={post} />
-            </div>
+          feedSections.map((section) => (
+            <React.Fragment key={section.page}>
+              {section.posts.map((post) => {
+                const globalIndex = allPosts.findIndex((p) => p.id === post.id);
+                return (
+                  <div
+                    key={`post-${post.id}`}
+                    ref={(el) => {
+                      if (el && globalIndex !== -1) {
+                        postRefs.current[globalIndex] = el;
+                      }
+                    }}
+                  >
+                    <PostCard post={post} />
+                  </div>
+                );
+              })}
+              {section.ads.map((ad) => (
+                <PostCard key={`ad-${ad.id}`} post={ad} />
+              ))}
+            </React.Fragment>
           ))
         )}
       </div>
