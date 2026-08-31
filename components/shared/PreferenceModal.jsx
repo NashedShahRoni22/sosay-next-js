@@ -137,7 +137,7 @@ export default function PreferenceModal({ isOpen, onClose }) {
             {updateMutation.isPending && (
               <Loader2 className="h-4 w-4 animate-spin" />
             )}
-            Save Preferences
+            Save
           </button>
         </div>
       </div>
