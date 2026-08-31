@@ -27,12 +27,6 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
-    domains: [
-      "api.sosay.org",
-      "images.unsplash.com",
-      "ui-avatars.com",
-      "api.blog.bfinit.com",
-    ],
   },
 };
 
