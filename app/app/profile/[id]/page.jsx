@@ -16,7 +16,6 @@ import {
   UserRoundPlus,
   UserCheck,
   UserMinus,
-  Crown,
   ImageIcon,
   Coffee,
   PlaySquare,
@@ -47,41 +46,6 @@ import UserProfileFollowing from "@/components/profile/UserProfileFollowing";
 import ContentDetails from "@/components/contents/ContentDetails";
 import ReelsViewer from "@/components/reels/ReelsViewer";
 import ContentPaymentModal from "@/components/contents/ContentPaymentModal";
-
-function ProfilePicture({ src, onClick }) {
-  const [isLoading, setIsLoading] = useState(Boolean(src));
-  const [hasError, setHasError] = useState(false);
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="size-32 md:size-40 rounded-full border-4 border-white bg-muted overflow-hidden flex items-center justify-center relative cursor-pointer"
-    >
-      {src && !hasError ? (
-        <>
-          {isLoading && (
-            <div className="absolute inset-0 rounded-full bg-accent animate-pulse" />
-          )}
-          <Image
-            src={src}
-            alt="Profile Image"
-            className="size-32 md:size-40 rounded-full object-cover"
-            height={500}
-            width={500}
-            onLoad={() => setIsLoading(false)}
-            onError={() => {
-              setHasError(true);
-              setIsLoading(false);
-            }}
-          />
-        </>
-      ) : (
-        <div className="absolute inset-0 rounded-full bg-accent animate-pulse" />
-      )}
-    </button>
-  );
-}
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -336,182 +300,223 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Picture and Info */}
-      <div className="mx-auto max-w-5xl px-3 sm:px-5">
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16">
-          <div className="relative">
+      <div className="relative z-10 px-4 md:px-6">
+        <div className="flex flex-col md:flex-row items-center md:items-end gap-4">
+          {/* Profile Picture (Pulled Up) */}
+          <div className="relative -mt-18 sm:-mt-22 md:-mt-0 shrink-0">
             {profileDataLoading ? (
-              <div className="size-32 md:size-40 rounded-full border-4 border-white bg-accent animate-pulse" />
+              <div className="rounded-full ring-4 ring-white dark:ring-gray-950 shadow-lg size-28 sm:size-32 md:size-40 bg-accent animate-pulse" />
             ) : (
-              <ProfilePicture
-                key={profileData?.profile_picture || "profile-picture"}
-                src={profileData?.profile_picture}
+              <div
+                className="rounded-full ring-4 ring-white dark:ring-gray-950 shadow-lg overflow-hidden size-28 sm:size-32 md:size-40 bg-gray-100 dark:bg-gray-800 cursor-pointer"
                 onClick={() =>
                   openLightbox(profileData?.profile_cover_picture ? 1 : 0)
                 }
-              />
+              >
+                <Image
+                  src={profileData?.profile_picture}
+                  alt="Profile Image"
+                  className="w-full h-full object-cover"
+                  height={500}
+                  width={500}
+                />
+              </div>
             )}
           </div>
-          <div className="text-center md:text-left md:mb-4">
-            <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
-              {profileDataLoading ? (
-                <span className="inline-block h-7 w-44 rounded bg-accent animate-pulse" />
-              ) : (
-                profileData?.name
-              )}
-            </h1>
 
-            <div className="mt-4 flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-start">
-              <TooltipProvider delayDuration={100}>
-                {!profileData?.friends?.is_self && (
-                  <>
-                    {/* Friend / Unfriend / Cancel */}
-                    {profileData?.friends?.is_friend ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={handleUnfriend}
-                            disabled={unfriendMutation.isPending}
-                          >
-                            {unfriendMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <UserRoundX className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Unfriend</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : profileData?.friends?.is_request_sent ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={handleCancelFriendRequest}
-                            disabled={cancelFriendRequestMutation.isPending}
-                          >
-                            {cancelFriendRequestMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <X className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Cancel Request</p>
-                        </TooltipContent>
-                      </Tooltip>
+          {/* User Info */}
+          <div className="text-center md:text-left flex-1 w-full pb-1">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex flex-col items-center md:items-start gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight dark:text-white">
+                    {profileDataLoading ? (
+                      <span className="inline-block h-7 w-44 rounded bg-accent animate-pulse" />
                     ) : (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={handleAddFriend}
-                            disabled={addFriendMutation.isPending}
-                          >
-                            {addFriendMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <UserRoundPlus className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Add Friend</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      profileData?.name
                     )}
+                  </h1>
+                </div>
 
-                    {/* Follow / Unfollow */}
-                    {profileData?.friends?.is_following ? (
+                {/* counts */}
+                <div className="flex items-center justify-center md:justify-start gap-5 sm:gap-8 text-sm text-gray-600 dark:text-gray-400">
+                  {[
+                    { label: "Posts", value: profileData?.posts_count },
+                    { label: "Friends", value: profileData?.friends_count },
+                    { label: "Followers", value: profileData?.followers_count },
+                    {
+                      label: "Subscribers",
+                      value: profileData?.subscribers_count,
+                    },
+                  ].map(({ label, value }) => (
+                    <div
+                      key={label}
+                      className="flex flex-col items-center md:items-start"
+                    >
+                      <span className="font-bold text-gray-900 dark:text-white text-base md:text-lg leading-none">
+                        {value || 0}
+                      </span>
+                      <span className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <TooltipProvider delayDuration={100}>
+                  {!profileData?.friends?.is_self && (
+                    <>
+                      {/* Friend / Unfriend / Cancel */}
+                      {profileData?.friends?.is_friend ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleUnfriend}
+                              disabled={unfriendMutation.isPending}
+                            >
+                              {unfriendMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <UserRoundX className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Unfriend</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : profileData?.friends?.is_request_sent ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleCancelFriendRequest}
+                              disabled={cancelFriendRequestMutation.isPending}
+                            >
+                              {cancelFriendRequestMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <X className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Cancel Request</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleAddFriend}
+                              disabled={addFriendMutation.isPending}
+                            >
+                              {addFriendMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <UserRoundPlus className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Add Friend</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+
+                      {/* Follow / Unfollow */}
+                      {profileData?.friends?.is_following ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleUnfollow}
+                              disabled={unfollowMutation.isPending}
+                            >
+                              {unfollowMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <UserMinus className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Unfollow</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={handleFollow}
+                              disabled={followMutation.isPending}
+                            >
+                              {followMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <UserCheck className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Follow</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+
+                      {/* Send Message */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            variant="outline"
                             size="icon"
-                            onClick={handleUnfollow}
-                            disabled={unfollowMutation.isPending}
+                            onClick={() => {
+                              setOpenChatDialog(true);
+                              setReceiver(profileData);
+                            }}
+                            className="bg-secondary hover:bg-secondary/90"
                           >
-                            {unfollowMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <UserMinus className="h-4 w-4" />
-                            )}
+                            <MessageCircle className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Unfollow</p>
+                          <p>Send Message</p>
                         </TooltipContent>
                       </Tooltip>
-                    ) : (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={handleFollow}
-                            disabled={followMutation.isPending}
-                          >
-                            {followMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <UserCheck className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Follow</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
+                    </>
+                  )}
+                </TooltipProvider>
 
-                    {/* Send Message */}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="icon"
-                          onClick={() => {
-                            setOpenChatDialog(true);
-                            setReceiver(profileData);
-                          }}
-                          className="bg-secondary hover:bg-secondary/90"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Send Message</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </>
-                )}
-              </TooltipProvider>
-
-              {/* Subscribe */}
-              {creatorProfile && (
-                <Button
-                  variant={isSubscribed ? "outline" : "default"}
-                  className={
-                    !isSubscribed
-                      ? "bg-secondary text-white hover:bg-secondary/95 w-full sm:w-auto"
-                      : "w-full sm:w-auto"
-                  }
-                  onClick={() => {
-                    if (!isSubscribed) {
-                      setPaymentModalOpen(true);
+                {/* Subscribe */}
+                {creatorProfile && (
+                  <Button
+                    variant={isSubscribed ? "outline" : "default"}
+                    className={
+                      !isSubscribed
+                        ? "bg-secondary text-white hover:bg-secondary/95 w-full sm:w-auto"
+                        : "w-full sm:w-auto"
                     }
-                  }}
-                >
-                  {isSubscribed
-                    ? "Subscribed"
-                    : `Subscribe for $${creatorProfile.subscription_price}`}
-                </Button>
-              )}
+                    onClick={() => {
+                      if (!isSubscribed) {
+                        setPaymentModalOpen(true);
+                      }
+                    }}
+                  >
+                    {isSubscribed
+                      ? "Subscribed"
+                      : `Subscribe for $${creatorProfile.subscription_price}`}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
