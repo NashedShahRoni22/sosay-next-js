@@ -152,13 +152,7 @@ export default function PublicPost() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="p-4">
-        <PostCardSkeletonList />
-      </div>
-    );
-  }
+  if (isLoading) return <PostCardSkeletonList />;
 
   return (
     <div ref={postsContainerRef}>

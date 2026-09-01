@@ -25,7 +25,12 @@ import {
   Rss,
   Users,
 } from "lucide-react";
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Chatpanel from "@/components/message/Chatpanel";
 import UserProfilePost from "@/components/profile/UserProfilePost";
@@ -304,7 +309,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="mx-auto mt-14 max-w-3xl space-y-6 px-3 sm:px-4 md:mt-0">
+    <section className="mx-auto mt-14 max-w-3xl space-y-6 px-4 md:mt-0">
       {/* Cover Picture */}
       <div className="relative">
         {profileDataLoading ? (

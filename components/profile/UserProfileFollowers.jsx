@@ -40,7 +40,7 @@ export default function UserProfileFollowers({ id, userInfo }) {
         </div>
       ) : (
         followers.map((user) => (
-          <Link href={`/profile/${user.user_id}`} key={user.user_id}>
+          <Link href={`/app/profile/${user.user_id}`} key={user.user_id}>
             <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer">
               <Image
                 src={user.avatar || "/placeholder.png"}

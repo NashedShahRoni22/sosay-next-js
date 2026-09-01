@@ -16,6 +16,8 @@ import {
   Users,
   Star,
   Rss,
+  LogOut,
+  CheckCircle,
 } from "lucide-react";
 import ProfilePost from "@/components/profile/ProfilePost";
 import ProfilePictureDialog from "@/components/profile/ProfilePictureDialog";
@@ -347,101 +349,115 @@ export default function ProfilePage() {
   return (
     <section className="max-w-3xl mx-auto space-y-6 px-4 mt-14 md:mt-0">
       {/* Cover Picture */}
-      <div className="relative">
-        <Image
-          src={userInfo?.user_cover_image || defaultCover}
-          className="w-full h-[200px] md:h-[300px] rounded-b-xl object-cover object-top"
-          alt="Cover Image"
-          height={1000}
-          width={1000}
-        />
-        <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
-          <button
-            onClick={handleOpenCoverDialog}
-            className="bg-white text-sm flex items-center gap-1.5 p-2 md:p-4 rounded-full shadow cursor-pointer hover:bg-gray-50 transition"
-          >
-            <Camera className="text-xl" />
-          </button>
+      <div className="relative group">
+        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[320px] overflow-hidden rounded-b-2xl">
+          <Image
+            src={userInfo?.user_cover_image || defaultCover}
+            className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+            alt="Cover Image"
+            fill
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
+        <button
+          onClick={handleOpenCoverDialog}
+          className="absolute bottom-3 right-3 md:bottom-5 md:right-5 flex items-center gap-1.5 p-2.5 md:p-3 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:bg-white hover:scale-105 active:scale-95 transition-all"
+        >
+          <Camera className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
+        </button>
       </div>
 
       {/* Profile Picture and Info */}
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16 md:-mt-20">
-          <div className="relative">
-            <Image
-              src={userInfo?.user_image}
-              alt="Profile Image"
-              className="size-32 md:size-40 rounded-full object-cover border-4 border-white"
-              height={500}
-              width={500}
-            />
+      <div className="relative z-10 px-4 md:px-6">
+        <div className="flex flex-col md:flex-row items-center md:items-end gap-4">
+          {/* Profile Picture (Pulled Up) */}
+          <div className="relative -mt-18 sm:-mt-22 md:-mt-0 shrink-0">
+            <div className="rounded-full ring-4 ring-white dark:ring-gray-950 shadow-lg overflow-hidden size-28 sm:size-32 md:size-40 bg-gray-100 dark:bg-gray-800">
+              <Image
+                src={userInfo?.user_image}
+                alt="Profile Image"
+                className="w-full h-full object-cover"
+                height={500}
+                width={500}
+              />
+            </div>
             <button
               onClick={handleOpenProfileDialog}
-              className="absolute bottom-1 right-1 bg-white p-2 rounded-full shadow cursor-pointer hover:bg-gray-100 transition"
+              className="absolute bottom-0.5 right-0.5 bg-white dark:bg-gray-900 p-2 rounded-full shadow-md border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:scale-105 active:scale-95 transition-all"
             >
-              <Camera className="text-xl" />
+              <Camera className="w-4 h-4 text-gray-700 dark:text-gray-300" />
             </button>
           </div>
-          <div className="text-center md:text-left md:mb-4 flex-1">
+
+          {/* User Info */}
+          <div className="text-center md:text-left flex-1 w-full pb-1">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold dark:text-white">
-                  {userInfo?.name}
-                </h1>
+              <div className="flex flex-col items-center md:items-start gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight dark:text-white">
+                    {userInfo?.name}
+                  </h1>
+                  <div className="flex justify-center">
+                    {isUserVerified ? (
+                      <Link
+                        href="/app/verified-infromations"
+                        className="w-fit inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-900 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                        Verified
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/app/verify"
+                        className="w-fit inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        Unverified
+                      </Link>
+                    )}
+                  </div>
+                </div>
 
-                {/* counts and badge  */}
-                <div className="flex items-center justify-center md:justify-start gap-4 mt-2 text-sm">
-                  <p>
-                    {" "}
-                    <span className="font-semibold">
-                      {" "}
-                      {statsData?.posts_count | 0}{" "}
-                    </span>{" "}
-                    Posts
-                  </p>
-                  <p>
-                    {" "}
-                    <span className="font-semibold">
-                      {" "}
-                      {statsData?.friends_count || 0}{" "}
-                    </span>{" "}
-                    Friends
-                  </p>
-
-                  {/* check user verification status and show badge or link accordingly  */}
-                  {isUserVerified ? (
-                    <Link
-                      href={"/app/verified-infromations"}
-                      className="inline-flex items-center text-[11px] font-medium px-2.5 py-1 rounded-full bg-secondary text-white"
+                {/* counts */}
+                <div className="flex items-center justify-center md:justify-start gap-5 sm:gap-8 text-sm text-gray-600 dark:text-gray-400">
+                  {[
+                    { label: "Posts", value: statsData?.posts_count },
+                    { label: "Friends", value: statsData?.friends_count },
+                    { label: "Followers", value: statsData?.followers_count },
+                    {
+                      label: "Subscribers",
+                      value: statsData?.subscribers_count,
+                    },
+                  ].map(({ label, value }) => (
+                    <div
+                      key={label}
+                      className="flex flex-col items-center md:items-start"
                     >
-                      Verified
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/app/verify"
-                      className="px-4 py-1 text-xs rounded-full bg-destructive text-white"
-                    >
-                      Not Verified
-                    </Link>
-                  )}
-
-                  <button
-                    onClick={() => logout()}
-                    className="px-4 py-1 text-xs rounded-full bg-destructive text-white"
-                  >
-                    Log Out
-                  </button>
+                      <span className="font-bold text-gray-900 dark:text-white text-base md:text-lg leading-none">
+                        {value || 0}
+                      </span>
+                      <span className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <button
-                onClick={handleShareProfile}
-                className="mx-auto md:mx-0 flex items-center justify-center gap-2 px-4 py-1.5 bg-white hover:bg-gray-100 text-gray-800 rounded-full transition-colors text-sm font-medium shadow-sm border border-gray-200"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={handleShareProfile}
+                  className="flex items-center gap-2 p-2 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-full text-sm font-medium shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-colors whitespace-nowrap"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-2 p-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-950/50 text-red-600 dark:text-red-400 rounded-full text-sm font-medium ring-1 ring-red-100 dark:ring-red-900 transition-colors whitespace-nowrap"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
