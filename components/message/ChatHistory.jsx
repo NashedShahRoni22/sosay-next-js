@@ -14,9 +14,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ChatHistory({
   whatsapp,
+  meet,
   whatsAppInfo,
   setReceiver,
   receiver,
@@ -90,13 +92,22 @@ export default function ChatHistory({
             Chat with your friends and stay connected
           </p>
         </div>
-        <Image
-          onClick={() => setIsWhatsAppModalOpen(true)}
-          src={whatsapp}
-          alt="WhatsApp"
-          height={40}
-          width={40}
-        />
+        <div className="flex gap-2">
+          <Image
+            onClick={() => setIsWhatsAppModalOpen(true)}
+            src={whatsapp}
+            alt="WhatsApp"
+            height={40}
+            width={40}
+          />
+          <Link
+            href="https://meet.google.com/home"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image src={meet} alt="Meet" height={40} width={40} />
+          </Link>
+        </div>
       </div>
 
       <Dialog open={isWhatsAppModalOpen} onOpenChange={setIsWhatsAppModalOpen}>

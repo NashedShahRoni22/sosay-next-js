@@ -14,13 +14,18 @@ import {
   Loader2,
   UserRoundX,
   UserRoundPlus,
+  UserCheck,
+  UserMinus,
+  Crown,
   ImageIcon,
   Coffee,
   PlaySquare,
   Clapperboard,
   ShoppingBag,
   Rss,
+  Users,
 } from "lucide-react";
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Chatpanel from "@/components/message/Chatpanel";
 import UserProfilePost from "@/components/profile/UserProfilePost";
@@ -32,6 +37,8 @@ import UserProfileContents from "@/components/profile/UserProfileContents";
 import UserProfileProducts from "@/components/profile/UserProfileProducts";
 import UserProfilePhotos from "@/components/profile/UserProfilePhotos";
 import UserProfileLifestyle from "@/components/profile/UserProfileLifestyle";
+import UserProfileFollowers from "@/components/profile/UserProfileFollowers";
+import UserProfileFollowing from "@/components/profile/UserProfileFollowing";
 import ContentDetails from "@/components/contents/ContentDetails";
 import ReelsViewer from "@/components/reels/ReelsViewer";
 import ContentPaymentModal from "@/components/contents/ContentPaymentModal";
@@ -105,6 +112,8 @@ export default function ProfilePage() {
     { name: "Reels", icon: PlaySquare, Component: UserProfileContents },
     { name: "Shorts", icon: Clapperboard, Component: UserProfileReels },
     { name: "Listings", icon: ShoppingBag, Component: UserProfileProducts },
+    { name: "Followers", icon: Users, Component: UserProfileFollowers },
+    { name: "Following", icon: Users, Component: UserProfileFollowing },
   ];
 
   // Fetch profile data
@@ -126,8 +135,6 @@ export default function ProfilePage() {
 
   const creatorProfile = creatorData?.data?.creator_profile;
   const isSubscribed = creatorData?.data?.is_subscribed;
-
-  console.log(creatorProfile, isSubscribed);
 
   // Add Friend
   const addFriendMutation = useMutation({
@@ -170,6 +177,46 @@ export default function ProfilePage() {
     },
     onError: () => {
       toast.error("Failed to unfriend");
+    },
+  });
+
+  // Follow
+  const followMutation = useMutation({
+    mutationFn: async (formData) => {
+      return await postWithToken("/friendship/follow", formData, accessToken);
+    },
+    onSuccess: (data) => {
+      if (data.status === true) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({
+          queryKey: [`/personal-information/${id}`, accessToken],
+        });
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: () => {
+      toast.error("Failed to follow");
+    },
+  });
+
+  // Unfollow
+  const unfollowMutation = useMutation({
+    mutationFn: async (formData) => {
+      return await postWithToken("/friendship/unfollow", formData, accessToken);
+    },
+    onSuccess: (data) => {
+      if (data.status === true) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({
+          queryKey: [`/personal-information/${id}`, accessToken],
+        });
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: () => {
+      toast.error("Failed to unfollow");
     },
   });
 
@@ -229,6 +276,18 @@ export default function ProfilePage() {
     const formData = new FormData();
     formData.append("friend_id", id);
     cancelFriendRequestMutation.mutate(formData);
+  };
+
+  const handleFollow = () => {
+    const formData = new FormData();
+    formData.append("followee_id", id);
+    followMutation.mutate(formData);
+  };
+
+  const handleUnfollow = () => {
+    const formData = new FormData();
+    formData.append("followee_id", id);
+    unfollowMutation.mutate(formData);
   };
 
   if (activeContentId) {
@@ -297,64 +356,138 @@ export default function ProfilePage() {
             </h1>
 
             <div className="mt-4 flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-start">
-              {!profileData?.friends?.is_self && (
-                <>
-                  {profileData?.friends?.is_friend ? (
-                    <Button
-                      variant="outline"
-                      onClick={handleUnfriend}
-                      disabled={unfriendMutation.isPending}
-                      className="w-full sm:w-auto"
-                    >
-                      {unfriendMutation.isPending ? (
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                      ) : (
-                        <UserRoundX className="mr-1 h-4 w-4" />
-                      )}
-                      Unfriend
-                    </Button>
-                  ) : profileData?.friends?.is_request_sent ? (
-                    <Button
-                      variant="outline"
-                      onClick={handleCancelFriendRequest}
-                      disabled={cancelFriendRequestMutation.isPending}
-                      className="w-full sm:w-auto"
-                    >
-                      {cancelFriendRequestMutation.isPending ? (
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                      ) : (
-                        <X className="mr-1 h-4 w-4" />
-                      )}
-                      Cancel Request
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      onClick={handleAddFriend}
-                      disabled={addFriendMutation.isPending}
-                      className="w-full sm:w-auto"
-                    >
-                      {addFriendMutation.isPending ? (
-                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                      ) : (
-                        <UserRoundPlus className="mr-1 h-4 w-4" />
-                      )}
-                      Add Friend
-                    </Button>
-                  )}
+              <TooltipProvider delayDuration={100}>
+                {!profileData?.friends?.is_self && (
+                  <>
+                    {/* Friend / Unfriend / Cancel */}
+                    {profileData?.friends?.is_friend ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleUnfriend}
+                            disabled={unfriendMutation.isPending}
+                          >
+                            {unfriendMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserRoundX className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Unfriend</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : profileData?.friends?.is_request_sent ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleCancelFriendRequest}
+                            disabled={cancelFriendRequestMutation.isPending}
+                          >
+                            {cancelFriendRequestMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Cancel Request</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleAddFriend}
+                            disabled={addFriendMutation.isPending}
+                          >
+                            {addFriendMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserRoundPlus className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Add Friend</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
 
-                  <Button
-                    onClick={() => {
-                      setOpenChatDialog(true);
-                      setReceiver(profileData);
-                    }}
-                    className="w-full bg-secondary hover:bg-secondary/90 sm:w-auto"
-                  >
-                    <MessageCircle className="mr-1 h-4 w-4" /> Send Message
-                  </Button>
-                </>
-              )}
+                    {/* Follow / Unfollow */}
+                    {profileData?.friends?.is_following ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleUnfollow}
+                            disabled={unfollowMutation.isPending}
+                          >
+                            {unfollowMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserMinus className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Unfollow</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleFollow}
+                            disabled={followMutation.isPending}
+                          >
+                            {followMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserCheck className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Follow</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
 
+                    {/* Send Message */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          onClick={() => {
+                            setOpenChatDialog(true);
+                            setReceiver(profileData);
+                          }}
+                          className="bg-secondary hover:bg-secondary/90"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Send Message</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                )}
+              </TooltipProvider>
+
+              {/* Subscribe */}
               {creatorProfile && (
                 <Button
                   variant={isSubscribed ? "outline" : "default"}
@@ -461,7 +594,15 @@ export default function ProfilePage() {
         creatorId={id}
         accessToken={accessToken}
         open={paymentModalOpen}
-        onClose={() => setPaymentModalOpen(false)}
+        onClose={() => {
+          setPaymentModalOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: [`/contents/creators/${id}`, accessToken],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`/personal-information/${id}`, accessToken],
+          });
+        }}
       />
     </section>
   );

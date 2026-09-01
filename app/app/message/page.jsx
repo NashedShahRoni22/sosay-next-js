@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAppContext } from "@/context/context";
 import { fetchWithToken } from "@/helpers/api";
 import whatsapp from "../../assets/whatsapp.png";
+import meet from "../../assets/meet.webp";
 
 export default function Page() {
   const { accessToken, userInfo } = useAppContext();
@@ -58,10 +59,15 @@ export default function Page() {
             chatHistoryLoading={chatHistoryLoading}
             onSelectChat={handleSelectChat}
             whatsapp={whatsapp}
+            meet={meet}
           />
         </div>
         <div className="lg:w-3/5 h-full overflow-hidden">
-          <Chatpanel receiver={desktopReceiver} whatsapp={whatsapp} />
+          <Chatpanel
+            receiver={desktopReceiver}
+            whatsapp={whatsapp}
+            meet={meet}
+          />
         </div>
       </div>
 
@@ -76,6 +82,7 @@ export default function Page() {
           chatHistoryLoading={chatHistoryLoading}
           onSelectChat={handleSelectChat}
           whatsapp={whatsapp}
+          meet={meet}
         />
       </div>
 
@@ -86,6 +93,7 @@ export default function Page() {
             receiver={mobileReceiver}
             setShowChatPanel={setShowChatPanel}
             whatsapp={whatsapp}
+            meet={meet}
           />
         </div>
       )}

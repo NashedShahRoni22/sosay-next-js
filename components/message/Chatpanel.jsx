@@ -166,7 +166,12 @@ const echo = new Echo({
 });
 
 // ─── Chatpanel ─────────────────────────────────────────────────────────────
-export default function Chatpanel({ receiver, setShowChatPanel, whatsapp }) {
+export default function Chatpanel({
+  receiver,
+  setShowChatPanel,
+  whatsapp,
+  meet,
+}) {
   const { accessToken, userInfo } = useAppContext();
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -715,6 +720,15 @@ export default function Chatpanel({ receiver, setShowChatPanel, whatsapp }) {
                   onClose={() => setShowEmojiPicker(false)}
                 />
               )}
+
+              <Link
+                href={"https://meet.google.com/home"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0"
+              >
+                <Image src={meet} alt="Google Meet" height={35} width={35} />
+              </Link>
 
               {/* File Upload */}
               <input

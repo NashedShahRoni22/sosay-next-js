@@ -37,6 +37,8 @@ import UploadContentDialog from "@/components/contents/UploadContentDialog";
 import UploadReelDialog from "@/components/reels/UploadReelDialog";
 import ContentDetails from "@/components/contents/ContentDetails";
 import ReelsViewer from "@/components/reels/ReelsViewer";
+import UserProfileFollowers from "@/components/profile/UserProfileFollowers";
+import UserProfileFollowing from "@/components/profile/UserProfileFollowing";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
@@ -84,6 +86,8 @@ export default function ProfilePage() {
     { name: "Listings", icon: ShoppingBag, Component: UserShop },
     { name: "Fans", icon: Users, Component: MyFans },
     { name: "Other Creators", icon: Star, Component: MyCreatorsTab },
+    { name: "Followers", icon: Users, Component: UserProfileFollowers },
+    { name: "Following", icon: Users, Component: UserProfileFollowing },
   ];
 
   // Fetch profile pictures
