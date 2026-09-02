@@ -410,7 +410,7 @@ export default function ProfilePage() {
                     ) : (
                       <Link
                         href="/app/verify"
-                        className="w-fit inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        className="w-fit inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-red-100 text-gray-700 ring-1 ring-red-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                       >
                         Unverified
                       </Link>

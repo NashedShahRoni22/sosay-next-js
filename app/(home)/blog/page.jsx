@@ -39,19 +39,8 @@ export default function Blog() {
     setLoading(false);
   };
 
-  const trendingTags = [
-    "Creator Economy",
-    "Monetization",
-    "Social Commerce",
-    "Content Strategy",
-    "Digital Marketing",
-    "E-commerce",
-    "Crypto Payments",
-    "Community Building",
-  ];
-
   return (
-    <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 min-h-screen text-gray-900">
+    <section>
       {/* Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-pink-300/30 rounded-full blur-3xl animate-pulse"></div>
@@ -99,7 +88,7 @@ export default function Blog() {
                 className="group cursor-pointer block"
               >
                 <article>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border-2 border-gray-100 overflow-hidden hover:bg-white hover:border-pink-200 hover:scale-105 hover:shadow-xl transition-all duration-500">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl border-2 border-gray-100 overflow-hidden hover:bg-white hover:border-pink-200 transition-all duration-500">
                     <div className="relative overflow-hidden h-48">
                       <Image
                         src={post.thumbnail}
@@ -131,17 +120,6 @@ export default function Blog() {
                         className="text-gray-600 text-sm mb-4 line-clamp-3"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
-
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-800">
-                            User {post.user_id}
-                          </span>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </article>
@@ -163,27 +141,6 @@ export default function Blog() {
             </button>
           </div>
         )}
-      </div>
-
-      {/* Trending Tags */}
-      <div className="relative mx-5 md:container md:mx-auto pb-20">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-gray-100 p-8">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-800">
-            <TrendingUp className="w-6 h-6 text-pink-600" />
-            Trending Topics
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {trendingTags.map((tag, index) => (
-              <button
-                key={index}
-                className="px-4 py-2 bg-pink-50 hover:bg-pink-100 border-2 border-pink-200 hover:border-pink-300 rounded-full text-sm font-medium text-pink-600 transition-all duration-300 hover:scale-105"
-              >
-                <Tag className="w-3 h-3 inline mr-2" />
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );

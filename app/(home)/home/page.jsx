@@ -223,8 +223,8 @@ export default function AboutSosay() {
       <div className="relative pt-20 pb-16 md:pt-32 md:pb-24">
         <div className="mx-5 md:container md:mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-            <div className="flex-1 text-center lg:text-left animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full mb-6 animate-bounce-subtle">
+            <div className="flex-1 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full mb-6">
                 <Sparkles className="w-4 h-4 text-pink-600" />
                 <span className="text-sm font-semibold text-pink-600">
                   Social Ecommerce Network
