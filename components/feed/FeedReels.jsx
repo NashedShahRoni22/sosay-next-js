@@ -20,8 +20,10 @@ export default function FeedReels() {
   const queryClient = useQueryClient();
   const [openViewer, setOpenViewer] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
+  const [playingIndex, setPlayingIndex] = useState(0);
   const viewedInSessionRef = useRef(new Set());
   const scrollerRef = useRef(null);
+  const cardRefs = useRef([]);
 
   const { data: reelsData, isLoading } = useQuery({
     queryKey: ["/reels", accessToken, 1], // fetch only first page
@@ -59,6 +61,51 @@ export default function FeedReels() {
     },
     [accessToken, queryClient],
   );
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const container = scrollerRef.current;
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      let bestIndex = -1;
+      let minDistance = Infinity;
+
+      cardRefs.current.forEach((card, index) => {
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        
+        const visibleLeft = Math.max(rect.left, containerRect.left);
+        const visibleRight = Math.min(rect.right, containerRect.right);
+        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+        
+        // Consider cards that are at least 40% visible
+        if (visibleWidth > rect.width * 0.4) {
+          const distance = Math.abs(rect.left - containerRect.left);
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestIndex = index;
+          }
+        }
+      });
+
+      if (bestIndex !== -1) {
+        setPlayingIndex(bestIndex);
+      }
+    };
+
+    const container = scrollerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll, { passive: true });
+      // Run once initially after render
+      setTimeout(handleScroll, 100);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [reels]);
 
   const openReelViewer = (index) => {
     setViewerIndex(index);
@@ -101,9 +148,9 @@ export default function FeedReels() {
           className={`${CARD_CLASSES} group bg-white dark:bg-[#242526] block border border-gray-200 dark:border-gray-800`}
         >
           <div className="h-[65%] relative w-full overflow-hidden">
-            {userInfo?.profile_picture ? (
+            {userInfo?.user_image ? (
               <Image
-                src={userInfo.profile_picture}
+                src={userInfo.user_image}
                 alt="Your profile"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -129,11 +176,23 @@ export default function FeedReels() {
         {reels.map((reel, index) => (
           <div
             key={reel.id}
+            ref={(el) => {
+              if (el) cardRefs.current[index] = el;
+            }}
             className={`${CARD_CLASSES} group border border-transparent dark:border-gray-800`}
             onClick={() => openReelViewer(index)}
           >
-            {/* Background Thumbnail */}
-            {reel.thumbnail_url ? (
+            {/* Background Thumbnail or Video */}
+            {index === playingIndex && reel.video_url ? (
+              <video
+                src={reel.video_url}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            ) : reel.thumbnail_url ? (
               <Image
                 src={reel.thumbnail_url}
                 alt="Reel thumbnail"
