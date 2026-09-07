@@ -21,6 +21,7 @@ export default function FeedReels() {
   const [openViewer, setOpenViewer] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [playingIndex, setPlayingIndex] = useState(0);
+  const [videoReadyMap, setVideoReadyMap] = useState({});
   const viewedInSessionRef = useRef(new Set());
   const scrollerRef = useRef(null);
   const cardRefs = useRef([]);
@@ -74,11 +75,11 @@ export default function FeedReels() {
       cardRefs.current.forEach((card, index) => {
         if (!card) return;
         const rect = card.getBoundingClientRect();
-        
+
         const visibleLeft = Math.max(rect.left, containerRect.left);
         const visibleRight = Math.min(rect.right, containerRect.right);
         const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-        
+
         // Consider cards that are at least 40% visible
         if (visibleWidth > rect.width * 0.4) {
           const distance = Math.abs(rect.left - containerRect.left);
@@ -182,17 +183,8 @@ export default function FeedReels() {
             className={`${CARD_CLASSES} group border border-transparent dark:border-gray-800`}
             onClick={() => openReelViewer(index)}
           >
-            {/* Background Thumbnail or Video */}
-            {index === playingIndex && reel.video_url ? (
-              <video
-                src={reel.video_url}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                autoPlay
-                loop
-                muted
-                playsInline
-              />
-            ) : reel.thumbnail_url ? (
+            {/* Background Thumbnail (always the base layer, so there's never a black gap) */}
+            {reel.thumbnail_url ? (
               <Image
                 src={reel.thumbnail_url}
                 alt="Reel thumbnail"
@@ -202,6 +194,24 @@ export default function FeedReels() {
               />
             ) : (
               <div className="w-full h-full bg-gray-800" />
+            )}
+
+            {/* Video fades in on top only once it actually has a frame ready */}
+            {index === playingIndex && reel.video_url && (
+              <video
+                src={reel.video_url}
+                className={`absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+                  videoReadyMap[reel.id] ? "opacity-100" : "opacity-0"
+                }`}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onLoadedData={() =>
+                  setVideoReadyMap((prev) => ({ ...prev, [reel.id]: true }))
+                }
+              />
             )}
 
             {/* Top Left Avatar */}
