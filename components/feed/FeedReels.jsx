@@ -138,7 +138,7 @@ export default function FeedReels() {
   }
 
   return (
-    <div className="mb-6 w-full min-w-0 relative group">
+    <div className="mb-6 w-full min-w-0 relative">
       <div
         ref={scrollerRef}
         className="flex gap-2 w-full overflow-x-auto overflow-y-hidden scroll-smooth snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -146,7 +146,7 @@ export default function FeedReels() {
         {/* Create Story Card */}
         <Link
           href="/app/reels"
-          className={`${CARD_CLASSES} group bg-white dark:bg-[#242526] block border border-gray-200 dark:border-gray-800`}
+          className={`${CARD_CLASSES} bg-white dark:bg-[#242526] block border border-gray-200 dark:border-gray-800`}
         >
           <div className="h-[65%] relative w-full overflow-hidden">
             {userInfo?.user_image ? (
@@ -154,7 +154,7 @@ export default function FeedReels() {
                 src={userInfo.user_image}
                 alt="Your profile"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover transition-transform duration-300"
                 sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 14vw"
               />
             ) : (
@@ -180,7 +180,7 @@ export default function FeedReels() {
             ref={(el) => {
               if (el) cardRefs.current[index] = el;
             }}
-            className={`${CARD_CLASSES} group border border-transparent dark:border-gray-800`}
+            className={`${CARD_CLASSES} border border-transparent dark:border-gray-800`}
             onClick={() => openReelViewer(index)}
           >
             {/* Background Thumbnail (always the base layer, so there's never a black gap) */}
@@ -189,7 +189,7 @@ export default function FeedReels() {
                 src={reel.thumbnail_url}
                 alt="Reel thumbnail"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover transition-transform duration-300"
                 sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 14vw"
               />
             ) : (
@@ -200,7 +200,7 @@ export default function FeedReels() {
             {index === playingIndex && reel.video_url && (
               <video
                 src={reel.video_url}
-                className={`absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+                className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${
                   videoReadyMap[reel.id] ? "opacity-100" : "opacity-0"
                 }`}
                 autoPlay

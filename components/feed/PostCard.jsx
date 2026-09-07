@@ -27,6 +27,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { Flag } from "lucide-react";
+import { Textarea } from "../ui/textarea";
+
 import PostComments from "./PostComments";
 
 import MediaSwiper from "./MediaSwiper";
@@ -44,11 +47,14 @@ import { useAppContext } from "@/context/context";
 import { postWithToken } from "@/helpers/api";
 
 import { toast } from "react-hot-toast";
+import { Bookmark, BookmarkCheck } from "lucide-react";
 
 export default function PostCard({ post }) {
   const queryClient = useQueryClient();
 
   const { accessToken, userInfo } = useAppContext();
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
 
   const images = post?.post_files?.filter((file) => file.file_type === 1) || [];
 
@@ -191,9 +197,77 @@ export default function PostCard({ post }) {
 
   const isOwner = userInfo?.id === post?.user?.id;
 
+  const savePostMutation = useMutation({
+    mutationFn: async (postId) => {
+      return await postWithToken(
+        `/feed_management/public/feed/${postId}/save`,
+        new FormData(),
+        accessToken,
+      );
+    },
+    onSuccess: (data) => {
+      if (data.status === true) {
+        toast.success(
+          post?.is_saved ? "Post removed from saved" : "Post saved",
+        );
+        queryClient.invalidateQueries({
+          queryKey: ["/feed_management/public/feed/all/post"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [`/feed_management/public/feed/saved/posts`, accessToken],
+        });
+      } else {
+        toast.error(data.message || "Failed to save post");
+      }
+    },
+    onError: () => {
+      toast.error("Failed to save post");
+    },
+  });
+
+  const handleSavePost = () => {
+    savePostMutation.mutate(post.id);
+  };
+
+  const reportPostMutation = useMutation({
+    mutationFn: async ({ postId, reason }) => {
+      const formData = new FormData();
+      formData.append("reason", reason);
+
+      return await postWithToken(
+        `/feed_management/public/feed/${postId}/report`,
+        formData,
+        accessToken,
+      );
+    },
+    onSuccess: (data) => {
+      if (data.status === true) {
+        toast.success(data.message || "Post reported successfully");
+        setReportOpen(false);
+        setReportReason("");
+        queryClient.invalidateQueries({
+          queryKey: ["/feed_management/public/feed/all/post"],
+        });
+      } else {
+        toast.error(data.message || "Failed to report post");
+      }
+    },
+    onError: () => {
+      toast.error("Failed to report post");
+    },
+  });
+
+  const handleReportPost = () => {
+    if (!reportReason.trim()) {
+      toast.error("Please provide a reason");
+      return;
+    }
+    reportPostMutation.mutate({ postId: post.id, reason: reportReason });
+  };
+
   return (
     <div
-      ref={postRef} // <-- Attached the observer reference here
+      ref={postRef}
       className={`w-full bg-white border ${post?.is_sponsored ? "border-blue-300" : "border-gray-200"} rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-sm hover:shadow-md transition-shadow`}
     >
       {/* Header */}
@@ -227,7 +301,7 @@ export default function PostCard({ post }) {
           </div>
         </div>
 
-        {isOwner && (
+        {isOwner ? (
           <Popover>
             <PopoverTrigger asChild>
               <button
@@ -260,6 +334,41 @@ export default function PostCard({ post }) {
                   <Trash2 className="size-4" />
                 )}
                 <span>Delete post</span>
+              </button>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Post actions"
+              >
+                <EllipsisVertical className="size-4 text-gray-600" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-40 p-1.5">
+              <button
+                type="button"
+                onClick={handleSavePost}
+                disabled={savePostMutation.isPending}
+                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left hover:bg-blue-50 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {post?.is_saved ? (
+                  <BookmarkCheck className="size-4" />
+                ) : (
+                  <Bookmark className="size-4" />
+                )}
+                <span>{post?.is_saved ? "Already saved" : "Save post"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setReportOpen(true)}
+                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <Flag className="size-4" />
+                <span>Report post</span>
               </button>
             </PopoverContent>
           </Popover>
@@ -323,6 +432,41 @@ export default function PostCard({ post }) {
             </DialogDescription>
           </DialogHeader>
           <PostComments post={post} allMedia={allMedia} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Report Posts */}
+      <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Report post</DialogTitle>
+            <DialogDescription>
+              Let us know why you're reporting this post.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+            placeholder="e.g. This post is unauthorized"
+            className="min-h-[100px]"
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setReportOpen(false)}
+              className="px-3 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleReportPost}
+              disabled={reportPostMutation.isPending}
+              className="px-3 py-1.5 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {reportPostMutation.isPending ? "Submitting..." : "Submit report"}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

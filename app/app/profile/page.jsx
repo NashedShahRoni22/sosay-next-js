@@ -18,6 +18,7 @@ import {
   Rss,
   LogOut,
   CheckCircle,
+  BookMarked,
 } from "lucide-react";
 import ProfilePost from "@/components/profile/ProfilePost";
 import ProfilePictureDialog from "@/components/profile/ProfilePictureDialog";
@@ -41,6 +42,7 @@ import ContentDetails from "@/components/contents/ContentDetails";
 import ReelsViewer from "@/components/reels/ReelsViewer";
 import UserProfileFollowers from "@/components/profile/UserProfileFollowers";
 import UserProfileFollowing from "@/components/profile/UserProfileFollowing";
+import UserSavedPost from "@/components/profile/UserSavedPost";
 
 export default function ProfilePage() {
   const { userInfo, setUserInfo, accessToken, isUserVerified, logout } =
@@ -90,6 +92,7 @@ export default function ProfilePage() {
     { name: "Other Creators", icon: Star, Component: MyCreatorsTab },
     { name: "Followers", icon: Users, Component: UserProfileFollowers },
     { name: "Following", icon: Users, Component: UserProfileFollowing },
+    { name: "Saved Posts", icon: BookMarked, Component: UserSavedPost },
   ];
 
   // Fetch profile pictures

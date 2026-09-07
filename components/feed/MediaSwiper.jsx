@@ -1,21 +1,36 @@
 import { useMemo, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Eye } from "lucide-react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Image from "next/image";
 import FullscreenGallery from "@/components/shared/FullscreenGallery";
+import { useAppContext } from "@/context/context";
+import { postWithToken } from "@/helpers/api";
 
-const VideoItem = ({ item, containerClassName, videoClassName }) => {
+const VideoItem = ({ item, containerClassName, videoClassName, postId }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef(null);
+  const { accessToken } = useAppContext();
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     setIsPlaying(true);
     if (videoRef.current) {
       videoRef.current.play();
+    }
+    
+    try {
+      if (postId && accessToken) {
+        await postWithToken(
+          `/feed_management/public/feed/${postId}/video-play`,
+          new FormData(),
+          accessToken
+        );
+      }
+    } catch (error) {
+      console.error("Failed to increment play count", error);
     }
   };
 
@@ -50,6 +65,12 @@ const VideoItem = ({ item, containerClassName, videoClassName }) => {
             <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm transition-transform group-hover:scale-110">
               <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
             </div>
+            {item.play_count !== undefined && (
+              <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-2">
+                <Eye className="w-4 h-4 text-white" />
+                <span className="text-white text-sm font-medium">{item.play_count} views</span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -115,8 +136,7 @@ export default function MediaSwiper({ media, postId }) {
                 onLoad={(e) => {
                   const { naturalWidth, naturalHeight } = e.target;
                   if (naturalWidth && naturalHeight && !item.aspectRatio) {
-                    // Update state to trigger re-render
-                    setLightboxIndex(0); // Dummy state update to trigger render, ideally we'd use a dedicated state, but item mutation + this works for now.
+                    setLightboxIndex(0);
                     item.aspectRatio = `${naturalWidth} / ${naturalHeight}`;
                   }
                 }}
@@ -125,6 +145,7 @@ export default function MediaSwiper({ media, postId }) {
           ) : (
             <VideoItem
               item={item}
+              postId={postId}
               containerClassName="w-full max-h-[75vh] sm:rounded-xl overflow-hidden"
               videoClassName="w-full h-full object-cover"
             />
@@ -180,6 +201,7 @@ export default function MediaSwiper({ media, postId }) {
           ) : (
             <VideoItem
               item={item}
+              postId={postId}
               containerClassName="w-full h-[280px] xs:h-[320px] sm:h-[380px] md:h-[450px] lg:h-[500px]"
               videoClassName="w-full h-full max-h-full object-cover"
             />
