@@ -2,8 +2,10 @@ import {
   Edit,
   EllipsisVertical,
   MessageCircle,
-  Share2,
   Trash2,
+  Repeat,
+  BarChart2,
+  Share,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -37,8 +39,6 @@ import MediaSwiper from "./MediaSwiper";
 import ReactionButton from "./ReactionButton";
 
 import PostContent from "./PostContent";
-
-import ReactionSummary from "./ReactionSummary";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -301,7 +301,7 @@ export default function PostCard({ post }) {
           </div>
         </div>
 
-        {isOwner ? (
+        {isOwner && (
           <Popover>
             <PopoverTrigger asChild>
               <button
@@ -337,41 +337,6 @@ export default function PostCard({ post }) {
               </button>
             </PopoverContent>
           </Popover>
-        ) : (
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Post actions"
-              >
-                <EllipsisVertical className="size-4 text-gray-600" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-40 p-1.5">
-              <button
-                type="button"
-                onClick={handleSavePost}
-                disabled={savePostMutation.isPending}
-                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left hover:bg-blue-50 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {post?.is_saved ? (
-                  <BookmarkCheck className="size-4" />
-                ) : (
-                  <Bookmark className="size-4" />
-                )}
-                <span>{post?.is_saved ? "Already saved" : "Save post"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setReportOpen(true)}
-                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <Flag className="size-4" />
-                <span>Report post</span>
-              </button>
-            </PopoverContent>
-          </Popover>
         )}
       </div>
 
@@ -381,38 +346,77 @@ export default function PostCard({ post }) {
       {/* Media (Images & Videos) */}
       <MediaSwiper media={allMedia} postId={post.id} />
 
-      {/* Reactions Summary */}
-
-      <ReactionSummary post={post} />
-
       {/* Actions */}
       <Dialog>
-        <div className="flex justify-between items-center pt-2 sm:pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-3 sm:gap-6">
-            {/* Reaction button */}
-            <ReactionButton post={post} />
-
+        <div className="flex justify-between items-center pt-2 sm:pt-3 mt-2 border-t border-gray-100">
+          {/* Left Group */}
+          <div className="flex items-center justify-between flex-1 max-w-[80%] sm:max-w-[70%]">
             {/* Comment button */}
             <DialogTrigger asChild>
-              <button className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-blue-500 transition-colors cursor-pointer">
-                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-xs sm:text-sm hidden md:block">
-                  Comment
-                </span>
+              <button className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors cursor-pointer group">
+                <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-blue-50 transition-colors">
+                  <MessageCircle className="w-4 h-4 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-xs">{post?.comments?.length || 0}</span>
               </button>
             </DialogTrigger>
 
-            {/* Share button */}
-            <button className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-green-500 transition-colors">
-              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-xs sm:text-sm hidden md:block">Share</span>
+            {/* Repost button */}
+            <button className="flex items-center gap-1.5 text-gray-500 hover:text-green-500 transition-colors group">
+              <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-green-50 transition-colors">
+                <Repeat className="w-4 h-4 sm:w-4 sm:h-4" />
+              </div>
+              <span className="text-xs">0</span>
+            </button>
+
+            {/* Reaction button */}
+            <ReactionButton post={post} />
+
+            {/* Views/Analytics button */}
+            <button className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors group">
+              <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-blue-50 transition-colors">
+                <BarChart2 className="w-4 h-4 sm:w-4 sm:h-4" />
+              </div>
+              <span className="text-xs">{post?.views_count || 0}</span>
             </button>
           </div>
-          <DialogTrigger asChild>
-            <button className="text-xs sm:text-sm text-gray-500 hover:text-blue-500 cursor-pointer transition-colors font-medium whitespace-nowrap">
-              {post?.comments?.length || 0} comments
+
+          {/* Right Group */}
+          <div className="flex items-center gap-1">
+            {/* Save/Bookmark button */}
+            <button
+              onClick={handleSavePost}
+              disabled={savePostMutation.isPending}
+              className="flex items-center text-gray-500 hover:text-blue-500 transition-colors group disabled:opacity-50"
+              title={post?.is_saved ? "Remove from saved" : "Save post"}
+            >
+              <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-blue-50 transition-colors">
+                {post?.is_saved ? (
+                  <BookmarkCheck className="w-4 h-4 sm:w-4 sm:h-4 text-blue-500" />
+                ) : (
+                  <Bookmark className="w-4 h-4 sm:w-4 sm:h-4" />
+                )}
+              </div>
             </button>
-          </DialogTrigger>
+
+            {/* Report button */}
+            <button
+              onClick={() => setReportOpen(true)}
+              className="flex items-center text-gray-500 hover:text-red-500 transition-colors group"
+              title="Report post"
+            >
+              <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-red-50 transition-colors">
+                <Flag className="w-4 h-4 sm:w-4 sm:h-4" />
+              </div>
+            </button>
+
+            {/* Share button */}
+            <button className="flex items-center text-gray-500 hover:text-blue-500 transition-colors group">
+              <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-blue-50 transition-colors">
+                <Share className="w-4 h-4 sm:w-4 sm:h-4" />
+              </div>
+            </button>
+          </div>
         </div>
         <DialogContent className="sm:max-w-3xl max-h-[90dvh] w-[95vw] sm:w-full overflow-hidden">
           <DialogHeader>

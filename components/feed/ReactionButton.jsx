@@ -1,42 +1,21 @@
 import { useAppContext } from "@/context/context";
 import { postWithToken } from "@/helpers/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, Smile, Laugh, Frown, ThumbsUp, Angry } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
-export const REACTIONS = {
-  like: { icon: ThumbsUp, label: "Like", color: "text-blue-500" },
-  love: { icon: Heart, label: "Love", color: "text-pink-500" },
-  haha: { icon: Laugh, label: "Haha", color: "text-yellow-500" },
-  wow: { icon: Smile, label: "Wow", color: "text-blue-500" },
-  sad: { icon: Frown, label: "Sad", color: "text-gray-500" },
-  angry: { icon: Angry, label: "Angry", color: "text-red-500" },
-};
-
-export default function ReactionButton({ post, showLabel = true }) {
+export default function ReactionButton({ post, showLabel = false }) {
   const { accessToken, userInfo } = useAppContext();
   const queryClient = useQueryClient();
-  const [showReactions, setShowReactions] = useState(false);
   const [optimisticReaction, setOptimisticReaction] = useState(
-    post?.current_user_reaction || null,
+    post?.current_user_reaction === 'like' ? 'like' : null,
   );
   const [optimisticCount, setOptimisticCount] = useState(
     post?.reactions_count || 0,
   );
 
-  const currentReaction = optimisticReaction;
-  const CurrentIcon = currentReaction
-    ? REACTIONS[currentReaction]?.icon
-    : ThumbsUp;
-  const currentColor = currentReaction
-    ? REACTIONS[currentReaction]?.color
-    : "text-gray-600";
+  const isLiked = optimisticReaction === 'like';
 
   // React mutation
   const reactMutation = useMutation({
@@ -53,7 +32,6 @@ export default function ReactionButton({ post, showLabel = true }) {
     onMutate: ({ nextReaction, nextCount }) => {
       setOptimisticReaction(nextReaction);
       setOptimisticCount(nextCount);
-      setShowReactions(false);
     },
     onSuccess: (data) => {
       if (data.status === true) {
@@ -74,12 +52,11 @@ export default function ReactionButton({ post, showLabel = true }) {
     },
   });
 
-  const handleReaction = (type) => {
-    const prevReaction = currentReaction;
+  const handleReaction = () => {
+    const prevReaction = optimisticReaction;
     const prevCount = optimisticCount;
 
-    // Same reaction tap = remove reaction; different = set/switch reaction
-    const nextReaction = prevReaction === type ? null : type;
+    const nextReaction = prevReaction === 'like' ? null : 'like';
     const nextCount =
       prevReaction === null
         ? prevCount + 1
@@ -88,7 +65,7 @@ export default function ReactionButton({ post, showLabel = true }) {
           : prevCount;
 
     reactMutation.mutate({
-      type,
+      type: 'like',
       prevReaction,
       prevCount,
       nextReaction,
@@ -96,63 +73,25 @@ export default function ReactionButton({ post, showLabel = true }) {
     });
   };
 
-  const getTotalReactions = () => {
-    return optimisticCount;
-  };
-
   return (
-    <div className="flex items-center gap-2">
-      <Popover open={showReactions} onOpenChange={setShowReactions}>
-        <PopoverTrigger asChild>
-          <button
-            className={`flex items-center gap-2 cursor-pointer ${currentColor} ${
-              currentReaction ? "font-semibold" : ""
-            }`}
-            onMouseEnter={() => setShowReactions(true)}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleReaction("like");
-            }}
-          >
-            <CurrentIcon
-              size={20}
-              className={currentReaction ? "fill" : "regular"}
-            />
-            {showLabel && (
-              <span className="text-sm hidden md:block">
-                {currentReaction ? REACTIONS[currentReaction]?.label : "Like"}
-              </span>
-            )}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-auto p-2 bg-white shadow-lg border border-gray-200"
-          onMouseLeave={() => setShowReactions(false)}
-        >
-          <div className="flex gap-2">
-            {Object.entries(REACTIONS).map(([key, { icon: Icon, color }]) => (
-              <button
-                key={key}
-                onClick={() => handleReaction(key)}
-                className={`p-2 rounded-full hover:scale-125 transition-transform ${color} hover:bg-gray-100 ${currentReaction === key ? "bg-gray-100" : "bg-transparent"}`}
-                disabled={reactMutation.isPending}
-              >
-                <Icon
-                  size={24}
-                  className={currentReaction === key ? "fill" : "regular"}
-                />
-              </button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-
-      {getTotalReactions() > 0 && (
-        <span className="text-xs text-gray-500 ml-1">
-          {getTotalReactions()}
-        </span>
-      )}
-    </div>
+    <button
+      className={`flex items-center gap-1.5 cursor-pointer hover:text-pink-600 transition-colors group ${
+        isLiked ? "text-pink-600" : "text-gray-500"
+      }`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleReaction();
+      }}
+      disabled={reactMutation.isPending}
+    >
+      <div className="p-1.5 sm:p-2 rounded-full group-hover:bg-pink-50 transition-colors">
+        <Heart
+          size={16}
+          className={`sm:w-4 sm:h-4 ${isLiked ? "fill-current" : ""}`}
+        />
+      </div>
+      <span className="text-xs">{optimisticCount || 0}</span>
+    </button>
   );
 }
